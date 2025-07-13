@@ -1,0 +1,66 @@
+{
+  "name": "riot-buddy-finder",
+  "version": "1.0.0",
+  "description": "An Electron app to find League of Legends buddies.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",  
+    "pack": "electron-builder --dir"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yuriiavr/League-friend.git"
+  },
+  "keywords": [],
+  "author": "Your Name",  
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yuriiavr/League-friend/issues"
+  },
+  "homepage": "https://github.com/yuriiavr/League-friend#readme",
+  "dependencies": {
+    "axios": "^1.10.0",
+    "dotenv": "^17.2.0",
+    "cors": "^2.8.5",         
+    "express": "^4.19.2",     
+    "socket.io": "^4.7.5"     
+  },
+  "devDependencies": {
+    "electron": "^37.2.1",     
+    "electron-builder": "^24.13.3" 
+  },
+  "build": {
+    "appId": "com.yourcompany.riotbuddyfinder", 
+    "productName": "Riot Buddy Finder", 
+    "copyright": "Copyright © 2025 ${author}", 
+    "directories": {
+      "output": "dist" 
+    },
+    "files": [
+      "**/*", 
+      "!node_modules/**/*.map", 
+      "!node_modules/**/*.dev.js",
+      "!backend-server/**", 
+      "backend-server/server.js", 
+      "backend-server/.env", 
+      "backend-server/package.json" 
+    ],
+    "win": { 
+      "target": "nsis",
+      "icon": "build/icon.ico" 
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.icns" 
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "build/icon.png" 
+    },
+    "nsis": {
+      "artifactName": "RiotBuddyFinderSetup-${version}.${ext}", 
+      "deleteAppDataOnUninstall": true 
+    }
+  }
+}
