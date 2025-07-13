@@ -70,7 +70,7 @@
                     <option value="Support">Support</option>
                 </select>
             </div>
-            
+
             <button id="startSearchBtn">Розпочати пошук союзника</button>
             <button id="logoutBtn" class="secondary-btn">Вийти</button>
         </div>
@@ -153,6 +153,8 @@
         const playerProfileQueue = document.getElementById('playerProfileQueue');
         const playerProfileLane = document.getElementById('playerProfileLane');
         const playerProfileDescription = document.getElementById('playerProfileDescription');
+        const queueTypeSelect = document.getElementById('queueTypeSelect');
+        const laneSelect = document.getElementById('laneSelect');
 
 
         let currentActiveRegion = 'euw1'; // Регіон, який зараз активний на вкладках
@@ -280,39 +282,43 @@
         // ===============================================
         // NEW: Логіка збереження опису профілю
         // ===============================================
-        saveDescriptionBtn.addEventListener('click', async () => {
-            if (!currentUserData || !currentUserData.puuid) {
-                descriptionErrorMessage.textContent = 'Будь ласка, увійдіть, щоб зберегти опис.';
-                return;
+         saveDescriptionBtn.addEventListener('click', async () => {
+        if (!currentUserData || !currentUserData.puuid) {
+            descriptionErrorMessage.textContent = 'Будь ласка, увійдіть, щоб зберегти опис.';
+            return;
+        }
+
+        const newDescription = profileDescriptionInput.value;
+        descriptionSaveMessage.textContent = '';
+        descriptionErrorMessage.textContent = '';
+
+        try {
+            const response = await fetch(`${BACKEND_BASE_URL}/api/profile/description`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    puuid: currentUserData.puuid,
+                    description: newDescription
+                })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                currentUserData.description = newDescription; // Update local data
+                // NEW: Зберігаємо опис у localStorage
+                localStorage.setItem('profileDescription', newDescription);
+
+                descriptionSaveMessage.textContent = 'Опис успішно збережено!';
+                setTimeout(() => descriptionSaveMessage.textContent = '', 3000); // Clear after 3 seconds
+            } else {
+                descriptionErrorMessage.textContent = data.error || 'Помилка при збереженні опису.';
             }
+        } catch (error) {
+            console.error('Error saving description:', error);
+            descriptionErrorMessage.textContent = 'Помилка мережі при збереженні опису.';
+        }
+    });
 
-            const newDescription = profileDescriptionInput.value;
-            descriptionSaveMessage.textContent = '';
-            descriptionErrorMessage.textContent = '';
-
-            try {
-                const response = await fetch(`${BACKEND_BASE_URL}/api/profile/description`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        puuid: currentUserData.puuid,
-                        description: newDescription
-                    })
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    currentUserData.description = newDescription; // Update local data
-                    descriptionSaveMessage.textContent = 'Опис успішно збережено!';
-                    setTimeout(() => descriptionSaveMessage.textContent = '', 3000); // Clear after 3 seconds
-                } else {
-                    descriptionErrorMessage.textContent = data.error || 'Помилка при збереженні опису.';
-                }
-            } catch (error) {
-                console.error('Error saving description:', error);
-                descriptionErrorMessage.textContent = 'Помилка мережі при збереженні опису.';
-            }
-        });
 
 
         // Перевіряємо, чи користувач має бути "запам'ятований" при запуску
@@ -343,9 +349,9 @@
                 return;
             }
 
-            // For now, let's pass dummy queueType and lane. We will add actual selection in the next step.
-            const dummyQueueType = 'Solo/Duo'; // Placeholder
-            const dummyLane = 'Any';           // Placeholder
+            // NEW: Отримуємо обрані значення
+            const selectedQueueType = queueTypeSelect.value;
+            const selectedLane = laneSelect.value;
 
             try {
                 const response = await fetch(`${BACKEND_BASE_URL}/api/start-search`, {
@@ -356,9 +362,9 @@
                         riotId: currentUserData.fullRiotId,
                         lolRegion: currentUserData.lolRegion,
                         rank: currentUserData.rank,
-                        queueType: dummyQueueType, // NEW: Pass dummy type
-                        lane: dummyLane,           // NEW: Pass dummy lane
-                        description: currentUserData.description // NEW: Pass description
+                        queueType: selectedQueueType, // Передаємо обраний тип черги
+                        lane: selectedLane,           // Передаємо обрану лінію
+                        description: currentUserData.description
                     })
                 });
                 const data = await response.json();
