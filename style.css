@@ -1,230 +1,250 @@
+/* General styles */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 20px;
-    background-color: #2c2f33; /* Dark Discord-like background */
+    background-color: #2c2f33;
     color: #ffffff;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Align to top */
-    min-height: 100vh;
-    box-sizing: border-box;
 }
 
 .container {
-    max-width: 600px;
-    width: 100%;
+    max-width: 800px;
     margin: 20px auto;
-    background-color: #36393f; /* Darker Discord-like card */
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-    box-sizing: border-box;
-}
-
-h1 {
-    text-align: center;
-    color: #7289da; /* Discord blue */
-    margin-bottom: 25px;
-    font-size: 2.2em;
-    font-weight: 700;
-}
-
-h2 {
-    color: #7289da;
-    margin-top: 25px;
-    margin-bottom: 15px;
-    font-size: 1.5em;
+    padding: 20px;
+    background-color: #36393f;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .section {
-    padding: 20px;
     margin-bottom: 20px;
-    background-color: #40444b; /* Even darker for sections */
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border: 1px solid #4f545c;
+    border-radius: 6px;
+    background-color: #2f3136;
+}
+
+h1, h2, h3 {
+    color: #7289da;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 .form-group {
     margin-bottom: 15px;
 }
 
-.form-group label {
+label {
     display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #b9bbbe; /* Lighter grey for labels */
+    margin-bottom: 5px;
+    color: #b9bbbe;
 }
 
-.form-group input[type="text"],
-.form-group select {
+input[type="text"],
+select,
+textarea { /* NEW: textarea style */
     width: calc(100% - 20px);
-    padding: 12px 10px;
-    border: 1px solid #23272a;
-    border-radius: 6px;
-    background-color: #2c2f33;
+    padding: 10px;
+    border: 1px solid #4f545c;
+    border-radius: 4px;
+    background-color: #40444b;
     color: #ffffff;
-    font-size: 1em;
-    box-sizing: border-box;
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
-.form-group input[type="text"]::placeholder {
-    color: #8e9297; /* Placeholder color */
+textarea {
+    resize: vertical; /* Allow vertical resizing */
+    min-height: 80px;
 }
+
 
 .checkbox-group {
     display: flex;
     align-items: center;
-    margin-top: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
-.checkbox-group input[type="checkbox"] {
+.checkbox-group input {
     margin-right: 10px;
 }
 
 button {
-    background-color: #7289da; /* Discord blue */
+    background-color: #7289da;
     color: white;
-    padding: 12px 25px;
+    padding: 10px 15px;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 600;
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    width: 100%;
-    box-sizing: border-box;
+    font-size: 16px;
     margin-top: 10px;
-}
-
-button.secondary-btn {
-    background-color: #5865f2; /* A slightly different shade for secondary actions */
+    transition: background-color 0.2s ease;
 }
 
 button:hover {
-    background-color: #677bc4;
-    transform: translateY(-2px);
+    background-color: #6778c7;
 }
 
-button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.secondary-btn {
+    background-color: #555;
+    margin-left: 10px;
 }
 
-.result-card {
-    background-color: #40444b;
-    border-radius: 10px;
-    padding: 25px;
-    margin-top: 25px;
-    display: none; /* Приховано за замовчуванням */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.secondary-btn:hover {
+    background-color: #666;
 }
 
 .error-message {
-    color: #f04747; /* Error red */
-    margin-top: 15px;
+    color: #ff5555;
+    margin-top: 10px;
     text-align: center;
-    font-weight: bold;
 }
 
-.profile-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 3px solid #7289da;
-    display: block;
-    margin: 0 auto 15px;
-    background-color: #282b30; /* Placeholder background */
+.success-message { /* NEW */
+    color: #55ff55;
+    margin-top: 10px;
+    text-align: center;
 }
 
-/* Tabbed search UI */
+.result-card, .your-spot-card {
+    background-color: #40444b;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+/* Tabs for search section */
 .tabs {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
+    flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
 }
 
 .tab-button {
-    flex-grow: 1;
-    background-color: #5865f2;
+    background-color: #555;
     color: white;
     padding: 10px 15px;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9em;
-    margin: 0 5px;
+    margin: 5px;
     transition: background-color 0.2s ease;
 }
 
 .tab-button.active {
-    background-color: #7289da; /* Active tab color */
+    background-color: #7289da;
 }
 
 .tab-button:hover:not(.active) {
-    background-color: #4e5d94;
-}
-
-.search-list-container {
-    margin-top: 20px;
+    background-color: #666;
 }
 
 .online-users-list {
-    background-color: #2c2f33;
-    border-radius: 8px;
-    padding: 15px;
-    max-height: 300px; /* Обмеження висоти для прокрутки */
-    overflow-y: auto; /* Дозволити прокрутку */
-    margin-top: 15px;
-    border: 1px solid #36393f;
+    margin-top: 20px;
+    border-top: 1px solid #4f545c;
+    padding-top: 15px;
 }
 
 .user-card {
     background-color: #40444b;
-    border-radius: 8px;
-    padding: 15px;
+    padding: 10px 15px;
     margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #4f545c;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
+    flex-direction: column; /* Organize content vertically */
+    cursor: pointer; /* Indicate clickable */
+    transition: background-color 0.2s ease;
 }
 
 .user-card:hover {
-    transform: translateY(-3px);
+    background-color: #50545b;
 }
 
-.user-card h3 {
-    margin: 0 0 5px 0;
-    color: #7289da;
-    font-size: 1.2em;
+.user-card.current-user-card {
+    background-color: #7289da;
+    border-color: #6778c7;
+    cursor: default;
 }
 
-.user-card p.user-details {
-    margin: 0;
-    color: #b9bbbe;
+.user-card.current-user-card:hover {
+    background-color: #7289da; /* No change on hover for current user */
+}
+
+.user-details {
     font-size: 0.9em;
+    color: #b9bbbe;
+    margin: 2px 0;
 }
 
-/* Стиль для картки "Ваше місце в черзі" */
-.your-spot-card {
-    background-color: #5865f2; /* A distinct color for the current user's spot */
-    color: white;
+.user-description-preview { /* NEW */
+    font-size: 0.8em;
+    color: #99aab5;
+    margin-top: 5px;
+    white-space: nowrap; /* Prevent description from wrapping */
+    overflow: hidden;    /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis if too long */
+}
+
+/* NEW: Modal Styles for Player Profile */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+    padding-top: 60px;
+}
+
+.modal-content {
+    background-color: #36393f;
+    margin: 5% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #4f545c;
     border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    text-align: center;
+    width: 80%; /* Could be more responsive */
+    max-width: 500px;
+    position: relative; /* For close button positioning */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    color: #ffffff;
 }
 
-.your-spot-card h3 {
-    color: white;
-    margin-top: 0;
-    margin-bottom: 10px;
+.close-button {
+    color: #b9bbbe;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-.current-user-card {
-    background-color: #6a7eff; /* Slightly different shade if displayed within the list too */
+.close-button:hover,
+.close-button:focus {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+#playerProfileDetails p {
+    margin: 8px 0;
+    font-size: 1.1em;
+}
+
+#playerProfileDetails strong {
+    color: #7289da;
+}
+
+#playerProfileDescription {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #2f3136;
+    border-radius: 5px;
+    white-space: pre-wrap; /* Preserve whitespace and wrap text */
+    word-wrap: break-word; /* Break long words */
+    font-style: italic;
+    color: #b9bbbe;
 }

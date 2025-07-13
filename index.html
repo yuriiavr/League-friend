@@ -33,22 +33,29 @@
         </div>
 
         <div id="dashboardSection" class="section" style="display: none;">
-    <h2>Ваш профіль</h2>
-    <div id="profileInfoCard" class="result-card">
-        <p>Riot ID: <strong id="dashboardRiotId"></strong></p>
-        <p>Рівень: <strong id="dashboardSummonerLevel"></strong></p>
-        <p>Ранг (SoloQ): <strong id="dashboardSummonerRank"></strong></p>
-        <p>LoL Регіон: <strong id="dashboardLolRegion"></strong></p>
-    </div>
-    <button id="startSearchBtn">Розпочати пошук союзника</button>
-    <button id="logoutBtn" class="secondary-btn">Вийти</button>
-</div>
+            <h2>Ваш профіль</h2>
+            <div id="profileInfoCard" class="result-card">
+                <p>Riot ID: <strong id="dashboardRiotId"></strong></p>
+                <p>Рівень: <strong id="dashboardSummonerLevel"></strong></p>
+                <p>Ранг (SoloQ): <strong id="dashboardSummonerRank"></strong></p>
+                <p>LoL Регіон: <strong id="dashboardLolRegion"></strong></p>
+                <div class="form-group">
+                    <label for="profileDescription">Ваш опис:</label>
+                    <textarea id="profileDescription" placeholder="Розкажіть про себе (max 250 символів)" maxlength="250"></textarea>
+                    <button id="saveDescriptionBtn">Зберегти опис</button>
+                    <p id="descriptionSaveMessage" class="success-message"></p>
+                    <p id="descriptionErrorMessage" class="error-message"></p>
+                </div>
+            </div>
+            <button id="startSearchBtn">Розпочати пошук союзника</button>
+            <button id="logoutBtn" class="secondary-btn">Вийти</button>
+        </div>
 
         <div id="searchSection" class="section" style="display: none;">
             <div class="tabs">
                 <button class="tab-button active" data-region="euw1">EU West</button>
                 <button class="tab-button" data-region="eun1">EU Nordic & East</button>
-                <button class="tab-button" data-region="na1">North America</soption>
+                <button class="tab-button" data-region="na1">North America</option>
                 <button class="tab-button" data-region="kr">Korea</option>
                 </div>
 
@@ -65,6 +72,21 @@
             <button id="stopSearchBtn" class="secondary-btn">Зупинити пошук</button>
         </div>
 
+        <div id="playerProfileModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close-button" id="playerProfileCloseBtn">&times;</span>
+                <h2>Профіль гравця</h2>
+                <div id="playerProfileDetails">
+                    <p>Нікнейм: <strong id="playerProfileNickname"></strong></p>
+                    <p>Ранг: <strong id="playerProfileRank"></strong></p>
+                    <p>Сервер: <strong id="playerProfileServer"></strong></p>
+                    <p>Черга: <strong id="playerProfileQueue"></strong></p>
+                    <p>Позиція: <strong id="playerProfileLane"></strong></p>
+                    <p>Опис: <span id="playerProfileDescription"></span></p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -78,13 +100,17 @@
 
         // Елементи Особистого Кабінету
         const dashboardSection = document.getElementById('dashboardSection');
-const profileInfoCard = document.getElementById('profileInfoCard'); // Цей елемент не оновлюється, але ID важливий
-const dashboardRiotId = document.getElementById('dashboardRiotId');
-const dashboardSummonerLevel = document.getElementById('dashboardSummonerLevel');
-const dashboardSummonerRank = document.getElementById('dashboardSummonerRank');
-const dashboardLolRegion = document.getElementById('dashboardLolRegion');
-const startSearchBtn = document.getElementById('startSearchBtn');
-const logoutBtn = document.getElementById('logoutBtn');
+        const profileInfoCard = document.getElementById('profileInfoCard');
+        const dashboardRiotId = document.getElementById('dashboardRiotId');
+        const dashboardSummonerLevel = document.getElementById('dashboardSummonerLevel');
+        const dashboardSummonerRank = document.getElementById('dashboardSummonerRank');
+        const dashboardLolRegion = document.getElementById('dashboardLolRegion');
+        const profileDescriptionInput = document.getElementById('profileDescription'); // NEW
+        const saveDescriptionBtn = document.getElementById('saveDescriptionBtn');     // NEW
+        const descriptionSaveMessage = document.getElementById('descriptionSaveMessage'); // NEW
+        const descriptionErrorMessage = document.getElementById('descriptionErrorMessage'); // NEW
+        const startSearchBtn = document.getElementById('startSearchBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
 
         // Елементи Пошуку
         const searchSection = document.getElementById('searchSection');
@@ -94,14 +120,21 @@ const logoutBtn = document.getElementById('logoutBtn');
         const searchQueueList = document.getElementById('searchQueueList');
         const stopSearchBtn = document.getElementById('stopSearchBtn');
 
+        // NEW: Елементи Детального Профілю Гравця
+        const playerProfileModal = document.getElementById('playerProfileModal');
+        const playerProfileCloseBtn = document.getElementById('playerProfileCloseBtn');
+        const playerProfileNickname = document.getElementById('playerProfileNickname');
+        const playerProfileRank = document.getElementById('playerProfileRank');
+        const playerProfileServer = document.getElementById('playerProfileServer');
+        const playerProfileQueue = document.getElementById('playerProfileQueue');
+        const playerProfileLane = document.getElementById('playerProfileLane');
+        const playerProfileDescription = document.getElementById('playerProfileDescription');
+
+
         let currentActiveRegion = 'euw1'; // Регіон, який зараз активний на вкладках
         let currentUserData = null; // Для зберігання даних поточного користувача
 
-        // Визначте базовий URL бекенду.
-        // !!! ДУЖЕ ВАЖЛИВО: ЗМІНІТЬ ЦЕЙ URL ПІСЛЯ РОЗГОРТАННЯ БЕКЕНДУ НА RENDER.COM !!!
-        const BACKEND_BASE_URL = 'http://localhost:3001';
-        // Приклад після розгортання:
-        // const BACKEND_BASE_URL = 'https://ваша-назва-проекту-на-render.com';
+        const BACKEND_BASE_URL = 'http://localhost:3001'; // !!! ЗМІНІТЬ ЦЕЙ URL ПІСЛЯ РОЗГОРТАННЯ БЕКЕНДУ НА RENDER.COM !!!
 
         // ===============================================
         // Socket.IO Клієнт
@@ -110,18 +143,17 @@ const logoutBtn = document.getElementById('logoutBtn');
 
         socket.on('connect', () => {
             console.log('Frontend: Connected to Socket.IO server');
-            // Після підключення, ініціалізуємо чергу для відображення
-            updateSearchQueueUI(); 
+            updateSearchQueueUI();
         });
 
         socket.on('initial_queue_state', (queue) => {
             console.log('Frontend: Received initial queue state. Updating UI.');
-            updateSearchQueueUI(); // Викликаємо оновлення UI
+            updateSearchQueueUI();
         });
 
         socket.on('queue_updated', (updatedQueue) => {
             console.log('Frontend: Received queue update event. Updating UI.');
-            updateSearchQueueUI(); // Викликаємо оновлення UI
+            updateSearchQueueUI();
         });
 
         socket.on('disconnect', () => {
@@ -130,7 +162,6 @@ const logoutBtn = document.getElementById('logoutBtn');
 
         socket.on('connect_error', (error) => {
             console.error('Frontend: Socket.IO connection error:', error);
-            // Додайте тут логіку для відображення помилки користувачу, якщо потрібно
         });
 
 
@@ -138,25 +169,24 @@ const logoutBtn = document.getElementById('logoutBtn');
         // Функції для навігації між секціями
         // ===============================================
 
-function showSection(sectionId) {
-    console.log(`[showSection] Attempting to show section: ${sectionId}`);
+        function showSection(sectionId) {
+            console.log(`[showSection] Attempting to show section: ${sectionId}`);
 
-    // Переконайтеся, що всі секції спочатку приховані
-    loginSection.style.display = 'none';
-    dashboardSection.style.display = 'none';
-    searchSection.style.display = 'none';
-    console.log(`[showSection] Initial states: login=${loginSection.style.display}, dashboard=${dashboardSection.style.display}, search=${searchSection.style.display}`);
+            loginSection.style.display = 'none';
+            dashboardSection.style.display = 'none';
+            searchSection.style.display = 'none';
+            playerProfileModal.style.display = 'none'; // Ensure modal is hidden
+            console.log(`[showSection] Initial states: login=${loginSection.style.display}, dashboard=${dashboardSection.style.display}, search=${searchSection.style.display}, modal=${playerProfileModal.style.display}`);
 
 
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        // Змінено тут: додаємо '!important'
-        targetSection.style.setProperty('display', 'block', 'important');
-        console.log(`[showSection] Successfully set ${sectionId}.style.display to 'block!important'. Current display: ${targetSection.style.display}`);
-    } else {
-        console.error(`[showSection] Error: Section with ID "${sectionId}" not found!`);
-    }
-}
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.style.setProperty('display', 'block', 'important'); // Keep !important for now
+                console.log(`[showSection] Successfully set ${sectionId}.style.display to 'block!important'. Current display: ${targetSection.style.display}`);
+            } else {
+                console.error(`[showSection] Error: Section with ID "${sectionId}" not found!`);
+            }
+        }
 
         // ===============================================
         // Логіка Логіну
@@ -183,17 +213,17 @@ function showSection(sectionId) {
                 const data = await response.json();
                 console.log('Received data from backend:', data);
 
-                if (response.ok) { // Перевірка, чи відповідь успішна (status 2xx)
-                    currentUserData = data; // Зберігаємо дані поточного користувача
+                if (response.ok) {
+                    currentUserData = data;
 
                     // Оновлюємо дані в особистому кабінеті
                     dashboardRiotId.textContent = data.fullRiotId;
                     dashboardSummonerLevel.textContent = data.summonerLevel;
                     dashboardSummonerRank.textContent = data.rank;
                     dashboardLolRegion.textContent = data.lolRegion.toUpperCase();
-                    console.log('UI elements after update:');
+                    profileDescriptionInput.value = data.description || ''; // NEW: Set description field
 
-                    // Зберігаємо дані у localStorage, якщо "запам'ятати мене" активовано
+                    // Зберігаємо дані у localStorage
                     if (rememberMe) {
                         localStorage.setItem('riotId', riotId);
                         localStorage.setItem('lolPlatformRegion', lolPlatformRegion);
@@ -202,15 +232,17 @@ function showSection(sectionId) {
                         localStorage.removeItem('lolPlatformRegion');
                     }
 
-                    showSection('dashboardSection'); // Переходимо в особистий кабінет
-                    if (profileInfoCard) { // Перевірка, чи елемент існує
-    profileInfoCard.style.display = 'block';
-    console.log('[Login Success] profileInfoCard set to display: block.');
-} else {
-    console.error('[Login Success] profileInfoCard element not found.');
-}
+                    showSection('dashboardSection');
+
+                    // Явно встановлюємо display: block для profileInfoCard (якщо потрібно)
+                    if (profileInfoCard) {
+                        profileInfoCard.style.display = 'block';
+                        console.log('[Login Success] profileInfoCard set to display: block.');
+                    } else {
+                        console.error('[Login Success] profileInfoCard element not found.');
+                    }
+
                 } else {
-                    // Якщо відповідь не успішна, обробляємо помилку
                     console.error('Login error:', data.error);
                     loginErrorMessage.textContent = data.error || 'Невідома помилка логіну.';
                 }
@@ -221,6 +253,44 @@ function showSection(sectionId) {
             }
         });
 
+        // ===============================================
+        // NEW: Логіка збереження опису профілю
+        // ===============================================
+        saveDescriptionBtn.addEventListener('click', async () => {
+            if (!currentUserData || !currentUserData.puuid) {
+                descriptionErrorMessage.textContent = 'Будь ласка, увійдіть, щоб зберегти опис.';
+                return;
+            }
+
+            const newDescription = profileDescriptionInput.value;
+            descriptionSaveMessage.textContent = '';
+            descriptionErrorMessage.textContent = '';
+
+            try {
+                const response = await fetch(`${BACKEND_BASE_URL}/api/profile/description`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        puuid: currentUserData.puuid,
+                        description: newDescription
+                    })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentUserData.description = newDescription; // Update local data
+                    descriptionSaveMessage.textContent = 'Опис успішно збережено!';
+                    setTimeout(() => descriptionSaveMessage.textContent = '', 3000); // Clear after 3 seconds
+                } else {
+                    descriptionErrorMessage.textContent = data.error || 'Помилка при збереженні опису.';
+                }
+            } catch (error) {
+                console.error('Error saving description:', error);
+                descriptionErrorMessage.textContent = 'Помилка мережі при збереженні опису.';
+            }
+        });
+
+
         // Перевіряємо, чи користувач має бути "запам'ятований" при запуску
         async function initializeApp() {
             const storedRiotId = localStorage.getItem('riotId');
@@ -229,10 +299,9 @@ function showSection(sectionId) {
                 riotIdInput.value = storedRiotId;
                 lolPlatformRegionSelect.value = storedRegion;
                 rememberMeCheckbox.checked = true;
-                // Автоматично спробувати логін з збереженими даними
-                loginBtn.click();
+                loginBtn.click(); // Автоматично спробувати логін з збереженими даними
             } else {
-                showSection('loginSection'); // Показати секцію логіну
+                showSection('loginSection');
             }
         }
 
@@ -250,8 +319,11 @@ function showSection(sectionId) {
                 return;
             }
 
+            // For now, let's pass dummy queueType and lane. We will add actual selection in the next step.
+            const dummyQueueType = 'Solo/Duo'; // Placeholder
+            const dummyLane = 'Any';           // Placeholder
+
             try {
-                // Відправляємо запит на бекенд для початку пошуку
                 const response = await fetch(`${BACKEND_BASE_URL}/api/start-search`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -259,15 +331,17 @@ function showSection(sectionId) {
                         puuid: currentUserData.puuid,
                         riotId: currentUserData.fullRiotId,
                         lolRegion: currentUserData.lolRegion,
-                        rank: currentUserData.rank
+                        rank: currentUserData.rank,
+                        queueType: dummyQueueType, // NEW: Pass dummy type
+                        lane: dummyLane,           // NEW: Pass dummy lane
+                        description: currentUserData.description // NEW: Pass description
                     })
                 });
                 const data = await response.json();
 
                 if (response.ok) {
                     console.log("Start search response:", data.message);
-                    showSection('searchSection'); // Переходимо на сторінку пошуку
-                    // updateSearchQueueUI() буде викликано Socket.IO event
+                    showSection('searchSection');
                 } else {
                     console.error('Error starting search:', data.error);
                     alert('Помилка при початку пошуку: ' + (data.error || 'Невідома помилка'));
@@ -280,21 +354,13 @@ function showSection(sectionId) {
         });
 
         logoutBtn.addEventListener('click', async () => {
-            try {
-                // Якщо ви зберігаєте дані в localStorage, очистіть їх тут
-                localStorage.removeItem('riotId');
-                localStorage.removeItem('lolPlatformRegion');
-
-                currentUserData = null; // Очистити дані користувача
-                riotIdInput.value = ''; // Очистити поле Riot ID
-                lolPlatformRegionSelect.value = 'euw1'; // Скинути регіон
-                rememberMeCheckbox.checked = false; // Зняти галочку "запам'ятати мене"
-
-                showSection('loginSection'); // Повернутися на сторінку логіну
-            } catch (error) {
-                console.error("Error during logout:", error);
-                alert("Помилка під час виходу. Спробуйте ще раз.");
-            }
+            localStorage.removeItem('riotId');
+            localStorage.removeItem('lolPlatformRegion');
+            currentUserData = null;
+            riotIdInput.value = '';
+            lolPlatformRegionSelect.value = 'euw1';
+            rememberMeCheckbox.checked = false;
+            showSection('loginSection');
         });
 
         // ===============================================
@@ -307,12 +373,12 @@ function showSection(sectionId) {
                 button.classList.add('active');
                 currentActiveRegion = button.dataset.region;
                 currentSearchRegionTitle.textContent = `Пошук на ${button.textContent}`;
-                updateSearchQueueUI(); // Оновлюємо список при зміні вкладки
+                updateSearchQueueUI();
             });
         });
 
         stopSearchBtn.addEventListener('click', async () => {
-            if (!currentUserData || !currentUserData.puuid) return; // Нічого робити, якщо немає активного користувача
+            if (!currentUserData || !currentUserData.puuid) return;
 
             try {
                 const response = await fetch(`${BACKEND_BASE_URL}/api/stop-search`, {
@@ -324,8 +390,7 @@ function showSection(sectionId) {
 
                 if (response.ok) {
                     console.log("Stopped search:", data.message);
-                    showSection('dashboardSection'); // Повернутися до особистого кабінету
-                    // updateSearchQueueUI() буде викликано Socket.IO event
+                    showSection('dashboardSection');
                 } else {
                     console.error('Error stopping search:', data.error);
                     alert('Помилка при зупинці пошуку: ' + (data.error || 'Невідома помилка'));
@@ -339,7 +404,6 @@ function showSection(sectionId) {
         // Функція для оновлення UI черги
         async function updateSearchQueueUI() {
             if (!currentUserData) {
-                // Якщо немає даних поточного користувача, просто скидаємо UI і виходимо
                 searchQueueList.innerHTML = '<p>Поки що ніхто не шукає...</p>';
                 currentUserInQueueCard.innerHTML = '<h3>Ви у черзі:</h3><p>Очікування...</p>';
                 currentUserInQueueCard.style.display = 'none';
@@ -347,7 +411,6 @@ function showSection(sectionId) {
             }
 
             try {
-                // Тут URL для черги є правильним.
                 const response = await fetch(`${BACKEND_BASE_URL}/api/queue/${currentActiveRegion}`);
                 const buddiesInQueue = await response.json();
 
@@ -355,44 +418,51 @@ function showSection(sectionId) {
 
                 let userInQueueDisplayed = false;
 
-                // Перевіряємо, чи поточний користувач є в черзі для цієї вкладки
                 const currentUserInCurrentQueue = buddiesInQueue.find(buddy => buddy.puuid === currentUserData.puuid);
 
                 if (currentUserInCurrentQueue) {
-                    const userCard = createUserCard(currentUserInCurrentQueue, true); // true для "ви"
-                    currentUserInQueueCard.innerHTML = `<h3>Ви у черзі:</h3>` + userCard.outerHTML; // Використовуємо outerHTML
+                    const userCard = createUserCard(currentUserInCurrentQueue, true);
+                    currentUserInQueueCard.innerHTML = `<h3>Ви у черзі:</h3>` + userCard.outerHTML;
                     currentUserInQueueCard.style.display = 'block';
                     userInQueueDisplayed = true;
                 } else {
                     currentUserInQueueCard.style.display = 'none';
                 }
 
-                // Додаємо інших користувачів, які не є поточним
                 if (buddiesInQueue.length === 0 && !userInQueueDisplayed) {
                     searchQueueList.innerHTML = '<p>Поки що ніхто не шукає...</p>';
                 } else {
                     buddiesInQueue.forEach(buddy => {
-                        if (buddy.puuid !== currentUserData.puuid) { // Переконуємось, що не додаємо себе двічі
+                        if (buddy.puuid !== currentUserData.puuid) {
                             const userCard = createUserCard(buddy);
+                            userCard.dataset.puuid = buddy.puuid; // Store PUUID on the card for click
                             searchQueueList.appendChild(userCard);
                         }
                     });
 
-                    // Якщо після фільтрації список все одно порожній, але ви не в черзі, показуємо заглушку
                     if (searchQueueList.children.length === 0 && !userInQueueDisplayed) {
                         searchQueueList.innerHTML = '<p>Поки що ніхто не шукає...</p>';
                     }
                 }
 
+                // NEW: Add event listeners to newly created user cards
+                document.querySelectorAll('.user-card:not(.current-user-card)').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const puuid = card.dataset.puuid;
+                        if (puuid) {
+                            openPlayerProfile(puuid);
+                        }
+                    });
+                });
+
             } catch (error) {
                 console.error("Error updating search queue UI:", error);
-                // Додаємо більш детальну інформацію для налагодження
                 searchQueueList.innerHTML = `<p class="error-message">Не вдалося завантажити список. Помилка: ${error.message}</p>`;
                 currentUserInQueueCard.style.display = 'none';
             }
         }
 
-        // Допоміжна функція для створення картки користувача
+        // Допоміжна функція для створення картки користувача (додаємо опис)
         function createUserCard(buddy, isCurrentUser = false) {
             const userCard = document.createElement('div');
             userCard.className = isCurrentUser ? 'user-card current-user-card' : 'user-card';
@@ -400,8 +470,55 @@ function showSection(sectionId) {
             userCard.innerHTML = `
                 <h3>${buddy.riotId} (${buddy.lolRegion.toUpperCase()})</h3>
                 <p class="user-details">Ранг: ${buddy.rank}</p>
-                `;
+                <p class="user-details">Черга: ${buddy.queueType || 'N/A'}</p>
+                <p class="user-details">Позиція: ${buddy.lane || 'N/A'}</p>
+                <p class="user-description-preview">${buddy.description ? buddy.description.substring(0, 50) + (buddy.description.length > 50 ? '...' : '') : 'Без опису'}</p>
+            `;
             return userCard;
+        }
+
+        // ===============================================
+        // NEW: Логіка Детального Профілю Гравця
+        // ===============================================
+
+        // Close button for the modal
+        playerProfileCloseBtn.addEventListener('click', () => {
+            playerProfileModal.style.display = 'none';
+            // Optionally, return to the previous section (e.g., searchSection or dashboardSection)
+            // based on where the user came from. For now, let's go back to searchSection.
+            showSection('searchSection');
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === playerProfileModal) {
+                playerProfileModal.style.display = 'none';
+                showSection('searchSection');
+            }
+        });
+
+        async function openPlayerProfile(puuid) {
+            try {
+                const response = await fetch(`${BACKEND_BASE_URL}/api/user/${puuid}`);
+                const userData = await response.json();
+
+                if (response.ok) {
+                    playerProfileNickname.textContent = userData.fullRiotId;
+                    playerProfileRank.textContent = userData.rank;
+                    playerProfileServer.textContent = userData.lolRegion.toUpperCase();
+                    playerProfileQueue.textContent = userData.currentQueueType || 'Не вказано'; // Use currentQueueType from full user data
+                    playerProfileLane.textContent = userData.currentLane || 'Не вказано';       // Use currentLane from full user data
+                    playerProfileDescription.textContent = userData.description || 'Опис відсутній.';
+
+                    showSection('playerProfileModal'); // Show the modal
+                    playerProfileModal.style.display = 'block'; // Ensure modal itself is block
+                } else {
+                    alert('Не вдалося завантажити профіль гравця: ' + (userData.error || 'Невідома помилка'));
+                }
+            } catch (error) {
+                console.error('Error fetching player profile:', error);
+                alert('Помилка мережі при завантаженні профілю гравця.');
+            }
         }
 
     </script>
