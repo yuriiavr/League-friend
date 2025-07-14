@@ -50,10 +50,7 @@
       "**/*",
       "!node_modules/**/*.map",
       "!node_modules/**/*.dev.js",
-      "!backend-server/**",
-      "backend-server/server.js",
-      "backend-server/.env",
-      "backend-server/package.json"
+      "!backend-server/**"
     ],
     "win": {
       "target": "nsis",

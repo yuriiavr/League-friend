@@ -1,4 +1,4 @@
-// Елементи Логіну
+// renderer.js
 const loginSection = document.getElementById("loginSection");
 const riotIdInput = document.getElementById("riotId");
 const lolPlatformRegionSelect = document.getElementById("lolPlatformRegion");
@@ -6,7 +6,6 @@ const rememberMeCheckbox = document.getElementById("rememberMe");
 const loginBtn = document.getElementById("loginBtn");
 const loginErrorMessage = document.getElementById("loginErrorMessage");
 
-// Елементи Особистого Кабінету
 const dashboardSection = document.getElementById("dashboardSection");
 const profileInfoCard = document.getElementById("profileInfoCard");
 const dashboardRiotId = document.getElementById("dashboardRiotId");
@@ -19,10 +18,12 @@ const descriptionSaveMessage = document.getElementById("descriptionSaveMessage")
 const descriptionErrorMessage = document.getElementById("descriptionErrorMessage");
 const startSearchBtn = document.getElementById("startSearchBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const queueTypeSelect = document.getElementById("queueTypeSelect");
+const laneSelect = document.getElementById("laneSelect");
 
-// Елементи Пошуку
+
 const searchSection = document.getElementById("searchSection");
-const tabButtons = document.querySelectorAll(".tab-button");
+const tabButtons = document.querySelectorAll(".tab-button"); // Всі кнопки вкладок
 const currentSearchRegionTitle = document.getElementById("currentSearchRegion");
 const currentUserInQueueCard = document.getElementById("currentUserInQueue");
 const searchQueueList = document.getElementById("searchQueueList");
@@ -32,543 +33,91 @@ const playerProfileModal = document.getElementById("playerProfileModal");
 const playerProfileCloseBtn = document.getElementById("playerProfileCloseBtn");
 const playerProfileNickname = document.getElementById("playerProfileNickname");
 const playerProfileRank = document.getElementById("playerProfileRank");
-const playerProfileServer = document.getElementById("playerProfileServer");
 const playerProfileQueue = document.getElementById("playerProfileQueue");
 const playerProfileLane = document.getElementById("playerProfileLane");
 const playerProfileDescription = document.getElementById("playerProfileDescription");
-const queueTypeSelect = document.getElementById("queueTypeSelect");
-const laneSelect = document.getElementById("laneSelect");
 
-// Елементи фільтрів
-const filterRankSelect = document.getElementById("filterRank");
-const filterQueueTypeSelect = document.getElementById("filterQueueType");
-const filterLaneSelect = document.getElementById("filterLane");
+// НОВІ КОНСТАНТИ ДЛЯ НОВИН
+const newsTabBtn = document.getElementById('newsTabBtn');
+const newsSection = document.getElementById('newsSection');
+const newsList = document.getElementById('newsList');
 
-let currentActiveRegion = "euw1";
-let currentUserData = null;
+let currentSearchRegion = localStorage.getItem("lolPlatformRegion") || "euw1";
+const socket = io("http://localhost:3000"); // Підключення до Socket.IO серверу
 
-const BACKEND_BASE_URL = "https://lol-prog-back.onrender.com";
-
-// Socket.IO Клієнт
-const socket = io(BACKEND_BASE_URL);
+// --- Функції Socket.IO ---
 
 socket.on("connect", () => {
-  updateSearchQueueUI();
-});
-
-socket.on("initial_queue_state", (queue) => {
-  updateSearchQueueUI();
-});
-
-socket.on("queue_updated", (updatedQueue) => {
-  updateSearchQueueUI();
+    console.log("Підключено до сервера Socket.IO");
+    const savedRiotId = localStorage.getItem("riotId");
+    const savedRegion = localStorage.getItem("lolPlatformRegion");
+    if (savedRiotId && savedRegion) {
+        socket.emit("clientConnected", { riotId: savedRiotId, region: savedRegion });
+    }
+    // Оновлюємо UI при підключенні на випадок, якщо вже були в черзі
+    updateSearchQueueUI(currentSearchRegion);
 });
 
 socket.on("disconnect", () => {
+    console.log("Відключено від сервера Socket.IO");
 });
 
-socket.on("connect_error", (error) => {
-  console.error("Frontend: Socket.IO connection error:", error);
+socket.on("updateQueue", (data) => {
+    console.log("Оновлення черги отримано:", data);
+    updateSearchQueueUI(currentSearchRegion); // Оновлюємо UI, коли приходять нові дані черги
 });
 
-// Функції для навігації між секціями
-function showSection(sectionId) {
-  loginSection.style.display = "none";
-  dashboardSection.style.display = "none";
-  searchSection.style.display = "none";
-  playerProfileModal.style.display = "none";
-
-  const targetSection = document.getElementById(sectionId);
-  if (targetSection) {
-    targetSection.style.setProperty("display", "block", "important");
-  } else {
-    console.error(`Error: Section with ID "${sectionId}" not found!`);
-  }
-}
-
-// Логіка Логіну
-loginBtn.addEventListener("click", async () => {
-  const riotId = riotIdInput.value.trim();
-  const lolPlatformRegion = lolPlatformRegionSelect.value;
-  const rememberMe = rememberMeCheckbox.checked;
-
-  loginErrorMessage.textContent = "";
-
-  if (!riotId) {
-    loginErrorMessage.textContent = "Будь ласка, введіть ваш Riot ID.";
-    return;
-  }
-
-  try {
-    const response = await fetch(`${BACKEND_BASE_URL}/api/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ riotId, lolPlatformRegion, rememberMe }),
-    });
-    const data = await response.json();
-
-    if (response.ok) {
-      currentUserData = data;
-
-      dashboardRiotId.textContent = data.fullRiotId;
-      dashboardSummonerLevel.textContent = data.summonerLevel;
-      dashboardSummonerRank.innerHTML = getRankDisplayHtml(data.rank); 
-      let displayRegion = data.lolRegion.toUpperCase();
-      if (data.lolRegion === 'euw1') {
-          displayRegion = 'EUW';
-      } else if (data.lolRegion === 'eun1') {
-          displayRegion = 'EUNE';
-      }
-      dashboardLolRegion.textContent = displayRegion;
-      profileDescriptionInput.value = data.description || "";
-
-      if (rememberMe) {
-        localStorage.setItem("riotId", riotId);
-        localStorage.setItem("lolPlatformRegion", lolPlatformRegion);
-      } else {
-        localStorage.removeItem("riotId");
-        localStorage.removeItem("lolPlatformRegion");
-      }
-
-      showSection("dashboardSection");
-
-      if (profileInfoCard) {
-        profileInfoCard.style.display = "block";
-      } else {
-        console.error("profileInfoCard element not found.");
-      }
-    } else {
-      console.error("Login error:", data.error);
-      loginErrorMessage.textContent = data.error || "Невідома помилка логіну.";
+socket.on("profileUpdated", (data) => {
+    console.log("Профіль оновлено:", data);
+    if (localStorage.getItem("riotId") === data.riotId) {
+        // Якщо це наш профіль, оновлюємо дані на дашборді
+        dashboardSummonerLevel.textContent = data.summonerLevel;
+        dashboardSummonerRank.innerHTML = getRankDisplayHtml(data.rank);
+        dashboardLolRegion.textContent = data.lolRegion.toUpperCase();
+        profileDescriptionInput.value = data.profileDescription || '';
+        queueTypeSelect.value = data.queueType || 'Будь-яка черга';
+        laneSelect.value = data.lane || 'Будь-яка лінія';
+        descriptionSaveMessage.textContent = 'Зміни збережено!';
+        setTimeout(() => {
+            descriptionSaveMessage.textContent = '';
+        }, 3000);
     }
-  } catch (err) {
-    console.error("Login network error:", err);
-    loginErrorMessage.textContent = "Помилка мережі при логіні. Перевірте підключення або спробуйте пізніше.";
-  }
+    updateSearchQueueUI(currentSearchRegion); // Також оновлюємо чергу, бо міг змінитися ранг/опис
 });
 
-// Логіка збереження опису профілю
-saveDescriptionBtn.addEventListener("click", async () => {
-  if (!currentUserData || !currentUserData.puuid) {
-    descriptionErrorMessage.textContent = "Будь ласка, увійдіть, щоб зберегти опис.";
-    return;
-  }
-
-  const newDescription = profileDescriptionInput.value;
-  descriptionSaveMessage.textContent = "";
-  descriptionErrorMessage.textContent = "";
-
-  try {
-    const response = await fetch(`${BACKEND_BASE_URL}/api/profile/description`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        puuid: currentUserData.puuid,
-        description: newDescription,
-      }),
-    });
-    const data = await response.json();
-
-    if (response.ok) {
-      currentUserData.description = newDescription;
-      localStorage.setItem("profileDescription", newDescription);
-
-      descriptionSaveMessage.textContent = "Опис успішно збережено!";
-      setTimeout(() => (descriptionSaveMessage.textContent = ""), 3000);
-    } else {
-      descriptionErrorMessage.textContent = data.error || "Помилка при збереженні опису.";
-    }
-  } catch (error) {
-    console.error("Error saving description:", error);
-    descriptionErrorMessage.textContent = "Помилка мережі при збереженні опису.";
-  }
+socket.on("error", (message) => {
+    console.error("Помилка від сервера:", message);
+    loginErrorMessage.textContent = `Помилка: ${message}`;
 });
 
-// Перевіряємо, чи користувач має бути "запам'ятований" при запуску
-async function initializeApp() {
-  const storedRiotId = localStorage.getItem("riotId");
-  const storedRegion = localStorage.getItem("lolPlatformRegion");
-  if (storedRiotId && storedRegion) {
-    riotIdInput.value = storedRiotId;
-    lolPlatformRegionSelect.value = storedRegion;
-    rememberMeCheckbox.checked = true;
-    loginBtn.click();
-  } else {
-    showSection("loginSection");
-  }
-}
+// --- Функції UI та обробники подій ---
 
-initializeApp();
+// Функція для перемикання видимості секцій
+function switchTab(activeSectionId, clickedButton) {
+    // Приховуємо всі секції
+    loginSection.style.display = 'none';
+    dashboardSection.style.display = 'none';
+    searchSection.style.display = 'none';
+    newsSection.style.display = 'none'; // Додаємо секцію новин
 
-// Логіка Особистого Кабінету
-startSearchBtn.addEventListener("click", async () => {
-  if (!currentUserData || !currentUserData.puuid) {
-    console.error("No current user data available or PUUID missing for search.");
-    loginErrorMessage.textContent = "Будь ласка, увійдіть, щоб розпочати пошук.";
-    showSection("loginSection");
-    return;
-  }
+    // Показуємо активну секцію
+    document.getElementById(activeSectionId).style.display = 'block';
 
-  const selectedQueueType = queueTypeSelect.value;
-  const selectedLane = laneSelect.value;
-
-  try {
-    const response = await fetch(`${BACKEND_BASE_URL}/api/start-search`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        puuid: currentUserData.puuid,
-        riotId: currentUserData.fullRiotId,
-        lolRegion: currentUserData.lolRegion,
-        rank: currentUserData.rank,
-        queueType: selectedQueueType,
-        lane: selectedLane,
-        description: currentUserData.description,
-      }),
-    });
-    const data = await response.json();
-
-    if (response.ok) {
-      showSection("searchSection");
-    } else {
-      console.error("Error starting search:", data.error);
-      alert("Помилка при початку пошуку: " + (data.error || "Невідома помилка"));
-    }
-  } catch (err) {
-    console.error("Start search network error:", err);
-    alert("Помилка мережі при початку пошуку.");
-  }
-});
-
-logoutBtn.addEventListener("click", async () => {
-  localStorage.removeItem("riotId");
-  localStorage.removeItem("lolPlatformRegion");
-  localStorage.removeItem("profileDescription");
-  currentUserData = null;
-  riotIdInput.value = "";
-  lolPlatformRegionSelect.value = "euw1";
-  rememberMeCheckbox.checked = false;
-  profileDescriptionInput.value = "";
-  showSection("loginSection");
-});
-
-// Фільтри
-filterRankSelect.addEventListener("change", updateSearchQueueUI);
-filterQueueTypeSelect.addEventListener("change", updateSearchQueueUI);
-filterLaneSelect.addEventListener("change", updateSearchQueueUI);
-
-// Логіка Пошуку (Matchmaking)
-tabButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    tabButtons.forEach((btn) => btn.classList.remove("active"));
-    button.classList.add("active");
-    currentActiveRegion = button.dataset.region;
-    currentSearchRegionTitle.textContent = `Пошук на ${button.textContent}`;
-    updateSearchQueueUI();
-  });
-});
-
-stopSearchBtn.addEventListener("click", async () => {
-  if (!currentUserData || !currentUserData.puuid) return;
-
-  try {
-    const response = await fetch(`${BACKEND_BASE_URL}/api/stop-search`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ puuid: currentUserData.puuid }),
-    });
-    const data = await response.json();
-
-    if (response.ok) {
-      showSection("dashboardSection");
-    } else {
-      console.error("Error stopping search:", data.error);
-      alert("Помилка при зупинці пошуку: " + (data.error || "Невідома помилка"));
-    }
-  } catch (err) {
-    console.error("Stop search network error:", err);
-    alert("Помилка мережі при зупинці пошуку.");
-  }
-});
-
-// Функція для оновлення UI черги
-async function updateSearchQueueUI() {
-  if (!currentUserData) {
-    searchQueueList.innerHTML = "<p>Поки що ніхто не шукає...</p>";
-    currentUserInQueueCard.innerHTML = "<h3>Ви у черзі:</h3><p>Очікування...</p>";
-    currentUserInQueueCard.style.display = "none";
-    return;
-  }
-
-  try {
-    const response = await fetch(`${BACKEND_BASE_URL}/api/queue/${currentActiveRegion}`);
-    let buddiesInQueue = await response.json();
-
-    searchQueueList.innerHTML = "";
-
-    let userInQueueDisplayed = false;
-
-    const currentUserInCurrentQueue = buddiesInQueue.find(
-      (buddy) => buddy.puuid === currentUserData.puuid
-    );
-
-    if (currentUserInCurrentQueue) {
-      const userCard = createUserCard(currentUserInCurrentQueue, true);
-      currentUserInQueueCard.innerHTML = `<h3>Ви у черзі:</h3>` + userCard.outerHTML;
-      currentUserInQueueCard.style.display = "block";
-      userInQueueDisplayed = true;
-    } else {
-      currentUserInQueueCard.style.display = "none";
-    }
-
-    const selectedFilterRank = filterRankSelect.value;
-    const selectedFilterQueueType = filterQueueTypeSelect.value;
-    const selectedFilterLane = filterLaneSelect.value;
-
-    const filteredBuddies = buddiesInQueue.filter((buddy) => {
-      if (buddy.puuid === currentUserData.puuid) {
-        return false;
-      }
-
-      if (
-        selectedFilterRank !== "Будь-який ранг" &&
-        !buddy.rank.startsWith(selectedFilterRank)
-      ) {
-        return false;
-      }
-
-      if (
-        selectedFilterQueueType !== "Будь-яка черга" &&
-        buddy.queueType !== selectedFilterQueueType
-      ) {
-        return false;
-      }
-
-      if (
-        selectedFilterLane !== "Будь-яка лінія" &&
-        buddy.lane !== selectedFilterLane
-      ) {
-        return false;
-      }
-
-      return true;
+    // Видаляємо клас 'active' з усіх кнопок вкладок у контейнері .tabs
+    document.querySelectorAll('.tabs .tab-button').forEach(btn => {
+        btn.classList.remove('active');
     });
 
-    if (filteredBuddies.length === 0 && !userInQueueDisplayed) {
-      searchQueueList.innerHTML = "<p>Поки що ніхто не шукає...</p>";
-    } else {
-      filteredBuddies.forEach((buddy) => {
-        const userCard = createUserCard(buddy);
-        userCard.dataset.puuid = buddy.puuid;
-        searchQueueList.appendChild(userCard);
-      });
-
-      if (
-        searchQueueList.children.length === 0 &&
-        !userInQueueDisplayed
-      ) {
-        searchQueueList.innerHTML = "<p>Поки що ніхто не шукає...</p>";
-      }
-    }
-
-    document
-      .querySelectorAll(".user-card:not(.current-user-card)")
-      .forEach((card) => {
-        card.addEventListener("click", () => {
-          const puuid = card.dataset.puuid;
-          if (puuid) {
-            openPlayerProfile(puuid);
-          }
-        });
-      });
-  } catch (error) {
-    console.error("Error updating search queue UI:", error);
-    searchQueueList.innerHTML = `<p class="error-message">Не вдалося завантажити список. Помилка: ${error.message}</p>`;
-    currentUserInQueueCard.style.display = "none";
-  }
-}
-
-// Допоміжна функція для створення картки користувача
-function createUserCard(buddy, isCurrentUser = false) {
-    const userCard = document.createElement("div");
-    userCard.className = isCurrentUser
-        ? "user-card current-user-card"
-        : "user-card";
-    userCard.id = `user-${buddy.puuid.replace(/[^a-zA-Z0-9]/g, "-")}`;
-    
-    const opggLink = getOpGgLink(buddy.riotId, buddy.lolRegion);
-
-    userCard.innerHTML = `
-        <h3>
-            ${buddy.riotId}
-            <a href="${opggLink}" target="_blank" rel="noopener noreferrer" class="opgg-link" title="Переглянути на OP.GG">
-                <img src="./assets/icons/opgg.png" alt="OP.GG" style="width: 25px; height: 25px; vertical-align: middle; margin-left: 5px;">
-            </a>
-        </h3>
-        <span class="user-details rank-info-container"> ${getRankDisplayHtml(buddy.rank)}</span>
-        <p class="user-details">Черга: ${buddy.queueType || "N/A"}</p>
-        <p class="user-details">Позиція: ${buddy.lane || "N/A"}</p>
-        <p class="user-description-preview">${
-            buddy.description
-                ? buddy.description.substring(0, 50) +
-                    (buddy.description.length > 50 ? "..." : "")
-                : "Без опису"
-        }</p>
-    `;
-    return userCard;
-}
-
-function getOpGgLink(riotId, lolRegion) {
-    const parts = riotId.split('#');
-    let nickname = parts[0];
-    let tagline = parts[1];
-
-    if (!tagline) {
-        tagline = ''; 
-    }
-
-    let opggRegion;
-    switch (lolRegion) {
-        case 'euw1':
-            opggRegion = 'euw';
-            break;
-        case 'eun1':
-            opggRegion = 'eune';
-            break;
-        default:
-            opggRegion = lolRegion;
-    }
-
-    const encodedNickname = encodeURIComponent(nickname);
-    const encodedTagline = encodeURIComponent(tagline);
-
-    return `https://op.gg/lol/summoners/${opggRegion}/${encodedNickname}-${encodedTagline}`;
-}
-
-function getRankDisplayHtml(rankString) {
-    let tier = 'UNRANKED';
-    let division = '';
-    let lp = '';
-
-    if (rankString.toUpperCase().includes('UNRANKED')) {
-        tier = 'UNRANKED';
-    } else {
-        const lpMatch = rankString.match(/\((\d+)\s*LP\)/i);
-        if (lpMatch && lpMatch[1]) {
-            lp = `${lpMatch[1]} LP`;
-            rankString = rankString.replace(/\((\d+)\s*LP\)/i, '').trim();
-        }
-
-        const rankParts = rankString.split(' ').filter(part => part);
-        
-        if (rankParts.length > 0) {
-            tier = rankParts[0].toUpperCase();
-
-            if (rankParts.length > 1 && ['I', 'II', 'III', 'IV'].includes(rankParts[1].toUpperCase())) {
-                division = rankParts[1].toUpperCase();
-            }
-            if (['MASTER', 'GRANDMASTER', 'CHALLENGER'].includes(tier)) {
-                 division = '';
-            }
-        }
-    }
-
-    let imageTier = tier.toLowerCase();
-    if (imageTier.includes('/')) {
-        imageTier = imageTier.split('/')[0];
-    }
-    if (imageTier === 'grandmaster') imageTier = 'master';
-    if (imageTier === 'challenger') imageTier = 'master';
-
-    const imageUrl = `./assets/ranks/${imageTier}.webp`;
-
-    let rankText = tier;
-    if (division) {
-        rankText += ` ${division}`;
-    }
-
-    return `
-        <div class="rank-display">
-            <img src="${imageUrl}" alt="${tier} Rank" class="rank-image">
-            <div class="rank-details">
-                <span class="rank-tier">${rankText}</span>
-                ${lp ? `<span class="rank-lp">${lp}</span>` : ''}
-            </div>
-        </div>
-    `;
-}
-
-// Логіка Детального Профілю Гравця
-playerProfileCloseBtn.addEventListener("click", () => {
-  playerProfileModal.style.display = "none";
-  showSection("searchSection");
-});
-
-window.addEventListener("click", (event) => {
-  if (event.target === playerProfileModal) {
-    playerProfileModal.style.display = "none";
-    showSection("searchSection");
-  }
-});
-
-async function openPlayerProfile(puuid) {
-    try {
-        const response = await fetch(`${BACKEND_BASE_URL}/api/user/${puuid}`);
-        const userData = await response.json();
-
-        if (response.ok) {
-            const opggLink = getOpGgLink(userData.fullRiotId, userData.lolRegion);
-
-            if (playerProfileNickname) {
-                playerProfileNickname.innerHTML = `
-                    ${userData.fullRiotId} 
-                    <a href="${opggLink}" target="_blank" rel="noopener noreferrer" class="opgg-link" title="Переглянути на OP.GG">
-                        <img src="./assets/icons/opgg.png" alt="OP.GG" style="width: 35px; height: 35px; vertical-align: middle; margin-left: 5px;">
-                    </a>
-                `;
-            }
-
-            if (playerProfileRank) playerProfileRank.innerHTML = getRankDisplayHtml(userData.rank); 
-            
-            if (playerProfileServer) { 
-                let displayRegion = userData.lolRegion.toUpperCase();
-                if (userData.lolRegion === 'euw1') {
-                    displayRegion = 'EUW';
-                } else if (userData.lolRegion === 'eun1') {
-                    displayRegion = 'EUNE';
-                }
-                playerProfileServer.textContent = displayRegion;
-            }
-
-            if (playerProfileQueue) playerProfileQueue.textContent =
-                userData.currentQueueType || "Не вказано";
-            if (playerProfileLane) playerProfileLane.textContent =
-                userData.currentLane || "Не вказано";
-            
-            if (playerProfileDescription) playerProfileDescription.textContent =
-                userData.description || "Опис відсутній.";
-
-            if (playerProfileModal) { 
-                showSection("playerProfileModal"); 
-                playerProfileModal.style.display = "block";
-            }
-        } else {
-            alert(
-                "Не вдалося завантажити профіль гравця: " +
-                (userData.error || "Невідома помилка")
-            );
-        }
-    } catch (error) {
-        console.error("Error fetching player profile:", error);
-        alert("Помилка мережі при завантаженні профілю гравця.");
+    // Додаємо клас 'active' до натиснутої кнопки, якщо вона є
+    if (clickedButton) {
+        clickedButton.classList.add('active');
     }
 }
 
-
+// Обробники для кнопок управління вікном
 const minimizeBtn = document.getElementById('minimize-btn');
 const maximizeRestoreBtn = document.getElementById('maximize-restore-btn');
 const closeBtn = document.getElementById('close-btn');
-
 
 if (minimizeBtn) {
     minimizeBtn.addEventListener('click', () => {
@@ -585,3 +134,374 @@ if (closeBtn) {
         window.electronAPI.closeWindow();
     });
 }
+
+// Обробники для зміни іконок максимізації/відновлення
+window.electronAPI.onSetMaximized(() => {
+    if (maximizeRestoreBtn) {
+        maximizeRestoreBtn.innerHTML = '<svg viewBox="0 0 10 10" aria-hidden="true" role="presentation" style="width: 10px; height: 10px; fill: #fff;"><path d="M2 1L2 9 9 9 9 1 2 1ZM8 2L3 2 3 8 8 8 8 2Z"></path></svg>'; // Іконка Restore
+    }
+});
+
+window.electronAPI.onSetUnmaximized(() => {
+    if (maximizeRestoreBtn) {
+        maximizeRestoreBtn.innerHTML = '<svg viewBox="0 0 10 10" aria-hidden="true" role="presentation" style="width: 10px; height: 10px; fill: #fff;"><path d="M0 0L0 10 10 10 10 0 0 0ZM9 1L9 9 1 9 1 1 9 1Z"></path></svg>'; // Іконка Maximize
+    }
+});
+
+
+// Функція для логіну
+loginBtn.addEventListener("click", async () => {
+    const riotId = riotIdInput.value.trim();
+    const lolPlatformRegion = lolPlatformRegionSelect.value;
+    const rememberMe = rememberMeCheckbox.checked;
+
+    if (!riotId) {
+        loginErrorMessage.textContent = "Будь ласка, введіть ваш Riot ID.";
+        return;
+    }
+
+    loginErrorMessage.textContent = "Вхід...";
+    try {
+        const response = await axios.post("http://localhost:3000/api/login", {
+            riotId,
+            lolPlatformRegion,
+        });
+        const data = response.data;
+
+        if (data.success) {
+            if (rememberMe) {
+                localStorage.setItem("riotId", data.user.riotId);
+                localStorage.setItem("lolPlatformRegion", data.user.lolRegion);
+            } else {
+                localStorage.removeItem("riotId");
+                localStorage.removeItem("lolPlatformRegion");
+            }
+
+            dashboardRiotId.textContent = data.user.riotId;
+            dashboardSummonerLevel.textContent = data.user.summonerLevel;
+            dashboardSummonerRank.innerHTML = getRankDisplayHtml(data.user.rank);
+            dashboardLolRegion.textContent = data.user.lolRegion.toUpperCase();
+            profileDescriptionInput.value = data.user.profileDescription || '';
+            queueTypeSelect.value = data.user.queueType || 'Будь-яка черга';
+            laneSelect.value = data.user.lane || 'Будь-яка лінія';
+
+
+            loginErrorMessage.textContent = "";
+            switchTab('dashboardSection'); // Перехід на дашборд
+            socket.emit("clientConnected", { riotId: data.user.riotId, region: data.user.lolRegion });
+            currentSearchRegion = data.user.lolRegion; // Оновлюємо поточний регіон пошуку
+            updateSearchQueueUI(currentSearchRegion);
+
+        } else {
+            loginErrorMessage.textContent = data.error || "Невідома помилка входу.";
+        }
+    } catch (error) {
+        console.error("Error during login:", error);
+        loginErrorMessage.textContent = "Помилка мережі або сервера при вході.";
+    }
+});
+
+// Функція для виходу
+logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("riotId");
+    localStorage.removeItem("lolPlatformRegion");
+    socket.emit("leaveQueue", { riotId: dashboardRiotId.textContent, region: dashboardLolRegion.textContent.toLowerCase() }); // Повідомляємо сервер про вихід з черги
+    switchTab('loginSection'); // Перехід на сторінку логіну
+});
+
+// Функція збереження опису та налаштувань профілю
+saveDescriptionBtn.addEventListener('click', async () => {
+    const riotId = dashboardRiotId.textContent;
+    const lolRegion = dashboardLolRegion.textContent.toLowerCase();
+    const description = profileDescriptionInput.value.trim();
+    const queueType = queueTypeSelect.value;
+    const lane = laneSelect.value;
+
+    descriptionSaveMessage.textContent = 'Збереження...';
+    descriptionErrorMessage.textContent = '';
+
+    try {
+        const response = await axios.post('http://localhost:3000/api/profile/update', {
+            riotId,
+            lolRegion,
+            profileDescription: description,
+            queueType,
+            lane
+        });
+
+        if (response.data.success) {
+            descriptionSaveMessage.textContent = 'Зміни збережено!';
+            setTimeout(() => {
+                descriptionSaveMessage.textContent = '';
+            }, 3000);
+            // Оновлюємо дані на сервері Socket.IO, якщо користувач у черзі
+            socket.emit("updateProfile", {
+                riotId: riotId,
+                region: lolRegion,
+                queueType: queueType,
+                lane: lane,
+                profileDescription: description
+            });
+        } else {
+            descriptionErrorMessage.textContent = response.data.error || 'Не вдалося зберегти зміни.';
+        }
+    } catch (error) {
+        console.error('Помилка збереження опису:', error);
+        descriptionErrorMessage.textContent = 'Помилка мережі при збереженні змін.';
+    }
+});
+
+// Функція початку пошуку
+startSearchBtn.addEventListener("click", () => {
+    const riotId = dashboardRiotId.textContent;
+    const lolRegion = dashboardLolRegion.textContent.toLowerCase();
+    const queueType = queueTypeSelect.value;
+    const lane = laneSelect.value;
+    const profileDescription = profileDescriptionInput.value;
+
+    socket.emit("joinQueue", {
+        riotId,
+        region: lolRegion,
+        queueType,
+        lane,
+        profileDescription,
+    });
+    switchTab('searchSection');
+    currentSearchRegion = lolRegion; // Забезпечуємо, що вкладка пошуку відображає регіон користувача
+    currentSearchRegionTitle.textContent = `Пошук на ${getRegionDisplayName(currentSearchRegion)}`;
+    updateSearchQueueUI(currentSearchRegion);
+});
+
+// Функція зупинки пошуку
+stopSearchBtn.addEventListener("click", () => {
+    const riotId = dashboardRiotId.textContent;
+    const lolRegion = dashboardLolRegion.textContent.toLowerCase();
+    socket.emit("leaveQueue", { riotId, region: lolRegion });
+    switchTab('dashboardSection'); // Повернутися на дашборд
+});
+
+// Обробники для кнопок вкладок регіонів
+tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const region = button.dataset.region;
+        if (region) { // Перевірка, що це кнопка регіону
+            currentSearchRegion = region;
+            currentSearchRegionTitle.textContent = `Пошук на ${getRegionDisplayName(region)}`;
+            updateSearchQueueUI(currentSearchRegion);
+            // switchTab вже обробляє активацію кнопки
+        }
+    });
+});
+
+// Обробники для фільтрів
+const filterRank = document.getElementById('filterRank');
+const filterQueueType = document.getElementById('filterQueueType');
+const filterLane = document.getElementById('filterLane');
+
+filterRank.addEventListener('change', () => updateSearchQueueUI(currentSearchRegion));
+filterQueueType.addEventListener('change', () => updateSearchQueueUI(currentSearchRegion));
+filterLane.addEventListener('change', () => updateSearchQueueUI(currentSearchRegion));
+
+
+// Оновлення UI черги пошуку
+async function updateSearchQueueUI(region) {
+    try {
+        const rankFilter = filterRank.value;
+        const queueTypeFilter = filterQueueType.value;
+        const laneFilter = filterLane.value;
+
+        const response = await axios.get(`http://localhost:3000/api/queue/${region}`);
+        const queueData = response.data.queue;
+        const currentUser = response.data.currentUser; // Отримуємо інформацію про поточного користувача
+
+        searchQueueList.innerHTML = ""; // Очищаємо список
+
+        let displayedUsersCount = 0;
+
+        // Відображення картки поточного користувача у черзі
+        if (currentUser && currentUser.region === region) {
+            currentUserInQueueCard.style.display = 'block';
+            currentUserInQueueCard.innerHTML = `
+                <h3>Ви у черзі:</h3>
+                <p>${currentUser.riotId} (${currentUser.lolRegion.toUpperCase()})</p>
+                <p>Ранг: ${currentUser.rank}</p>
+                <p>Черга: ${currentUser.queueType}</p>
+                <p>Лінія: ${currentUser.lane}</p>
+            `;
+            displayedUsersCount++;
+        } else {
+            currentUserInQueueCard.style.display = 'none';
+        }
+
+        // Відображення інших користувачів у черзі
+        if (queueData && queueData.length > 0) {
+            queueData.forEach(buddy => {
+                // Фільтрація за вибраними критеріями
+                const matchesRank = (rankFilter === 'Будь-який ранг' || buddy.rank.toUpperCase().startsWith(rankFilter));
+                const matchesQueueType = (queueTypeFilter === 'Будь-яка черга' || buddy.queueType === queueTypeFilter);
+                const matchesLane = (laneFilter === 'Будь-яка лінія' || buddy.lane === laneFilter);
+
+                // Перевіряємо, чи це не поточний користувач (щоб не дублювати)
+                const isOwnProfile = (currentUser && buddy.riotId === currentUser.riotId && buddy.lolRegion === currentUser.lolRegion);
+
+                if (matchesRank && matchesQueueType && matchesLane && !isOwnProfile) {
+                    const userCard = document.createElement('div');
+                    userCard.className = 'user-card';
+                    userCard.id = `user-${buddy.puuid ? buddy.puuid.replace(/[^a-zA-Z0-9]/g, '-') : buddy.riotId.replace(/[^a-zA-Z0-9]/g, '-')}`; // Використовуємо PUUID, якщо є
+                    userCard.innerHTML = `
+                        <h3>${buddy.riotId} (${buddy.lolRegion.toUpperCase()})</h3>
+                        <p class="user-details">Ранг: ${buddy.rank}</p>
+                        <p class="user-details">Черга: ${buddy.queueType}</p>
+                        <p class="user-details">Лінія: ${buddy.lane}</p>
+                        <button class="view-profile-btn" data-riot-id="${buddy.riotId}" data-lol-region="${buddy.lolRegion}">Переглянути профіль</button>
+                    `;
+                    searchQueueList.appendChild(userCard);
+                    displayedUsersCount++;
+                }
+            });
+
+            if (displayedUsersCount === 0) {
+                searchQueueList.innerHTML = "<p>Немає користувачів, що відповідають вашим фільтрам або крім вас.</p>";
+            }
+        } else {
+            searchQueueList.innerHTML = "<p>Поки що ніхто не шукає...</p>";
+        }
+
+    } catch (error) {
+        console.error("Error updating search queue UI:", error);
+        searchQueueList.innerHTML = `<p class="error-message">Не вдалося завантажити список. Помилка: ${error.message}</p>`;
+        currentUserInQueueCard.style.display = 'none';
+    }
+}
+
+
+// Відкриття модального вікна профілю гравця
+document.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('view-profile-btn')) {
+        const riotId = event.target.dataset.riotId;
+        const lolRegion = event.target.dataset.lolRegion;
+        await openPlayerProfileModal(riotId, lolRegion);
+    }
+});
+
+playerProfileCloseBtn.addEventListener('click', () => {
+    playerProfileModal.style.display = 'none';
+});
+
+// Закриття модального вікна по кліку поза ним
+window.addEventListener('click', (event) => {
+    if (event.target === playerProfileModal) {
+        playerProfileModal.style.display = 'none';
+    }
+});
+
+
+// Функція для відкриття модального вікна профілю гравця
+async function openPlayerProfileModal(riotId, lolRegion) {
+    try {
+        const response = await axios.get(`http://localhost:3000/api/user-profile/${riotId}/${lolRegion}`);
+        const userData = response.data;
+
+        if (userData.success) {
+            playerProfileNickname.textContent = userData.profile.riotId;
+            playerProfileRank.innerHTML = getRankDisplayHtml(userData.profile.rank); // Використовуємо функцію для відображення рангу
+            playerProfileQueue.textContent = `Черга: ${userData.profile.queueType || 'Не вказано'}`;
+            playerProfileLane.textContent = `Лінія: ${userData.profile.lane || 'Не вказано'}`;
+            playerProfileDescription.textContent = userData.profile.profileDescription || "Опис відсутній.";
+
+            if (playerProfileModal) {
+                playerProfileModal.style.display = "block";
+            }
+        } else {
+            alert(
+                "Не вдалося завантажити профіль гравця: " +
+                (userData.error || "Невідома помилка")
+            );
+        }
+    } catch (error) {
+        console.error("Error fetching player profile:", error);
+        alert("Помилка мережі при завантаженні профілю гравця.");
+    }
+}
+
+
+// Допоміжна функція для отримання шляху до картинки рангу
+function getRankDisplayHtml(tier) {
+    const baseTier = tier.toUpperCase();
+    let imageTier = baseTier;
+
+    // Специфічні кейси для Master/Grandmaster/Challenger, якщо вони використовують одну картинку
+    if (baseTier === 'GRANDMASTER' || baseTier === 'CHALLENGER') {
+        imageTier = 'master'; // Або інша картинка, якщо у вас є окрема
+    } else {
+        imageTier = baseTier.toLowerCase();
+    }
+    // Переконайтеся, що файл unranked.webp існує, якщо ранг невідомий
+    if (tier === 'UNRANKED' || !tier) {
+        imageTier = 'unranked';
+    }
+
+    // Перевірте, що картинки знаходяться за цим шляхом і мають розширення .webp
+    const imageUrl = `assets/ranks/${imageTier}.webp`;
+    return `<img src="${imageUrl}" alt="${tier}" class="rank-icon"> ${tier}`;
+}
+
+// Допоміжна функція для відображення назви регіону
+function getRegionDisplayName(regionCode) {
+    const regionNames = {
+        'euw1': 'EU West',
+        'eun1': 'EU Nordic & East',
+        'na1': 'North America',
+        'kr': 'Korea'
+        // Додайте інші регіони за потребою
+    };
+    return regionNames[regionCode] || regionCode.toUpperCase();
+}
+
+
+// --- Ініціалізація UI при завантаженні сторінки ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Приховуємо всі секції спочатку, потім показуємо логін або дашборд
+    loginSection.style.display = 'none';
+    dashboardSection.style.display = 'none';
+    searchSection.style.display = 'none';
+    newsSection.style.display = 'none'; // Приховати секцію новин за замовчуванням
+
+    const savedRiotId = localStorage.getItem("riotId");
+    const savedRegion = localStorage.getItem("lolPlatformRegion");
+
+    if (savedRiotId && savedRegion) {
+        // Якщо є збережений Riot ID, намагаємося "увійти" або показати дашборд
+        // (наприклад, викликаємо функцію, яка перевіряє сесію на бекенді)
+        // Для простоти, припускаємо, що ми можемо одразу перейти на дашборд
+        // і запитати актуальні дані з сервера
+        dashboardRiotId.textContent = savedRiotId;
+        dashboardLolRegion.textContent = savedRegion.toUpperCase();
+
+        // Запит актуальних даних користувача з сервера після завантаження
+        axios.get(`http://localhost:3000/api/user-profile/${savedRiotId}/${savedRegion}`)
+            .then(response => {
+                if (response.data.success) {
+                    const userData = response.data.profile;
+                    dashboardSummonerLevel.textContent = userData.summonerLevel;
+                    dashboardSummonerRank.innerHTML = getRankDisplayHtml(userData.rank);
+                    profileDescriptionInput.value = userData.profileDescription || '';
+                    queueTypeSelect.value = userData.queueType || 'Будь-яка черга';
+                    laneSelect.value = userData.lane || 'Будь-яка лінія';
+                    switchTab('dashboardSection');
+                    currentSearchRegion = savedRegion;
+                    updateSearchQueueUI(currentSearchRegion);
+                    socket.emit("clientConnected", { riotId: savedRiotId, region: savedRegion });
+                } else {
+                    console.error("Failed to load user data on startup:", response.data.error);
+                    loginSection.style.display = 'block'; // Якщо дані не завантажено, повертаємось на логін
+                }
+            })
+            .catch(error => {
+                console.error("Network error loading user data on startup:", error);
+                loginSection.style.display = 'block'; // Якщо помилка мережі, повертаємось на логін
+            });
+    } else {
+        loginSection.style.display = 'block'; // Якщо немає збереженого ID, показуємо логін
+    }
+});
