@@ -76,15 +76,15 @@ socket.on("queue_updated", (updatedQueue) => {
 });
 
 socket.on("disconnect", () => {
+    
 });
 
 socket.on("connect_error", (error) => {
-    console.error("Frontend: Socket.IO connection error:", error);
+    
 });
 
 function showSection(sectionId) {
     if ((sectionId === "dashboardSection" || sectionId === "searchSection" || sectionId === "playerProfileModal") && !isLoggedIn) {
-        console.warn(`Attempted to access restricted section (${sectionId}) while logged out. Redirecting to login.`);
         loginSection.style.display = "block";
         loginErrorMessage.textContent = "Будь ласка, увійдіть, щоб отримати доступ до цієї секції.";
         dashboardSection.style.display = "none";
@@ -106,7 +106,7 @@ function showSection(sectionId) {
     if (targetSection) {
         targetSection.style.setProperty("display", "block", "important");
     } else {
-        console.error(`Error: Section with ID "${sectionId}" not found!`);
+        
     }
 }
 
@@ -173,21 +173,21 @@ loginBtn.addEventListener("click", async () => {
             if (profileInfoCard) {
                 profileInfoCard.style.display = "block";
             } else {
-                console.error("profileInfoCard element not found.");
+                
             }
 
             if (dashboardTabBtn) dashboardTabBtn.classList.remove('inactive-tab');
             if (searchTabBtn) searchTabBtn.classList.remove('inactive-tab');
 
         } else {
-            console.error("Login error:", data.error);
+            
             loginErrorMessage.textContent = data.error || "Невідома помилка логіну.";
             isLoggedIn = false;
             if (dashboardTabBtn) dashboardTabBtn.classList.add('inactive-tab');
             if (searchTabBtn) searchTabBtn.classList.add('inactive-tab');
         }
     } catch (err) {
-        console.error("Login network error:", err);
+        
         loginErrorMessage.textContent = "Помилка мережі при логіні. Перевірте підключення або спробуйте пізніше.";
         isLoggedIn = false;
         if (dashboardTabBtn) dashboardTabBtn.classList.add('inactive-tab');
@@ -226,7 +226,7 @@ saveDescriptionBtn.addEventListener("click", async () => {
             descriptionErrorMessage.textContent = data.error || "Помилка при збереженні опису.";
         }
     } catch (error) {
-        console.error("Error saving description:", error);
+        
         descriptionErrorMessage.textContent = "Помилка мережі при збереженні опису.";
     }
 });
@@ -254,7 +254,7 @@ initializeApp();
 
 startSearchBtn.addEventListener("click", async () => {
     if (!currentUserData || !currentUserData.puuid) {
-        console.error("No current user data available or PUUID missing for search.");
+        
         loginErrorMessage.textContent = "Будь ласка, увійдіть, щоб розпочати пошук.";
         showSection("loginSection");
         return;
@@ -285,11 +285,11 @@ startSearchBtn.addEventListener("click", async () => {
             document.getElementById("searchTabBtn").classList.add("active");
             updateSearchQueueUI();
         } else {
-            console.error("Error starting search:", data.error);
+            
             alert("Помилка при початку пошуку: " + (data.error || "Невідома помилка"));
         }
     } catch (err) {
-        console.error("Start search network error:", err);
+        
         alert("Помилка мережі при початку пошуку.");
     }
 });
@@ -330,7 +330,7 @@ mainNavTabButtons.forEach((button) => {
             targetSectionId = "newsSection";
             loadNews();
         } else {
-            console.error("Unknown main navigation tab button clicked:", button.id);
+            
             return;
         }
         showSection(targetSectionId);
@@ -369,11 +369,11 @@ stopSearchBtn.addEventListener("click", async () => {
             mainNavTabButtons.forEach(btn => btn.classList.remove("active"));
             document.getElementById("dashboardTabBtn").classList.add("active");
         } else {
-            console.error("Error stopping search:", data.error);
+            
             alert("Помилка при зупинці пошуку: " + (data.error || "Невідома помилка"));
         }
     } catch (err) {
-        console.error("Stop search network error:", err);
+        
         alert("Помилка мережі при зупинці пошуку.");
     }
 });
@@ -468,7 +468,7 @@ async function updateSearchQueueUI() {
                 });
             });
     } catch (error) {
-        console.error("Error updating search queue UI:", error);
+        
         searchQueueList.innerHTML = `<p class="error-message">Не вдалося завантажити список. Помилка: ${error.message}</p>`;
         currentUserInQueueCard.style.display = "none";
     }
@@ -652,7 +652,7 @@ async function openPlayerProfile(puuid) {
             );
         }
     } catch (error) {
-        console.error("Error fetching player profile:", error);
+        
         alert("Помилка мережі при завантаженні профілю гравця.");
     }
 }
@@ -713,10 +713,10 @@ async function loadNews() {
             });
         } else {
             newsList.innerHTML = `<p class="error-message">Не вдалося завантажити новини: ${data.error || 'Невідома помилка'}</p>`;
-            console.error("Server error response:", data);
+            
         }
     } catch (error) {
-        console.error("Error loading news:", error);
+        
         newsList.innerHTML = `<p class="error-message">Помилка мережі при завантаженні новин або некоректна відповідь від сервера.</p>`;
     }
 }
