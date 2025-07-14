@@ -24,10 +24,14 @@ body {
     background-color: #2f3136;
 }
 
-h1, h2, h3 {
+h1, h2 {
     color: #7289da;
     text-align: center;
     margin-bottom: 20px;
+}
+
+h3{
+    color: #fff;
 }
 
 .form-group {
@@ -111,7 +115,6 @@ button:hover {
     border-radius: 6px;
     margin-top: 15px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    text-align: center;
 }
 
 /* Tabs for search section */
@@ -247,4 +250,84 @@ button:hover {
     word-wrap: break-word; /* Break long words */
     font-style: italic;
     color: #b9bbbe;
+}
+
+.filters-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px; /* Spacing between filter groups */
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #2f3136;
+    border-radius: 6px;
+    border: 1px solid #4f545c;
+}
+
+.filters-container .form-group {
+    flex: 1; /* Allow items to grow and shrink */
+    min-width: 150px; /* Minimum width for each filter */
+    margin-bottom: 0; /* Override default form-group margin-bottom */
+}
+
+.profile-stats{
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ... (існуючі стилі) ... */
+
+/* NEW: Styles for Rank Display with Image */
+.rank-display {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px; /* Space between image and text */
+}
+
+.rank-image {
+    width: 80px; /* Adjust size as needed */
+    height: 80px;
+    object-fit: contain; /* Ensure image scales correctly */
+}
+
+.rank-details {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9em;
+}
+
+.rank-tier {
+    font-weight: bold;
+    color: #fff; /* White text for rank tier */
+}
+
+.rank-lp {
+    font-size: 0.8em;
+    color: #b0b0b0; /* Lighter color for LP */
+}
+
+/* Для контейнера рангу в картці користувача, щоб текст "Ранг:" був поруч із зображенням */
+.user-details.rank-info-container {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Space between "Ранг:" and the rank display itself */
+}
+
+.user-card .rank-display .rank-image,
+.current-user-card .rank-display .rank-image{
+    width: 30px;
+    height: 30px;
+}
+
+.user-card .rank-display .rank-image,
+.current-user-card .rank-display{
+    flex-direction: row;
+    justify-content: start;
+}
+
+.user-card .rank-display{
+    flex-direction: row;
+    justify-content: start;
 }
