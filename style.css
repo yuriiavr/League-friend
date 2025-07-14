@@ -7,6 +7,27 @@ body {
     color: #ffffff;
 }
 
+::-webkit-scrollbar {
+    width: 0px;  /* Приховує вертикальний скролбар, встановлюючи його ширину в 0 */
+    height: 0px; /* Приховує горизонтальний скролбар, встановлюючи його висоту в 0 */
+    background: transparent; /* Робить фон скролбару прозорим */
+}
+
+/* Якщо потрібно, щоб трек скролбару також був невидимим */
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Якщо потрібно, щоб сам "повзунок" скролбару був невидимим */
+::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+/* Для Firefox (якщо також потрібна підтримка, хоча Electron базується на Chromium) */
+html {
+    scrollbar-width: none; /* Приховує скролбар */
+}
+
 .container {
     max-width: 800px;
     margin: 20px auto;
@@ -182,15 +203,14 @@ button:hover {
     margin: 2px 0;
 }
 
-.user-description-preview { /* NEW */
-    font-size: 0.8em;
-    color: #99aab5;
-    margin-top: 5px;
-    white-space: nowrap; /* Prevent description from wrapping */
-    overflow: hidden;    /* Hide overflow */
-    text-overflow: ellipsis; /* Add ellipsis if too long */
+.user-description-preview {
+    white-space: nowrap;      /* Забороняє перенесення тексту на новий рядок */
+    overflow: hidden;         /* Приховує будь-який текст, що виходить за межі елемента */
+    text-overflow: ellipsis;  /* Додає три крапки (...) до обрізаного тексту */
+    font-size: 0.9em;
+    color: #bbb;
+    margin-top: 5px; /* Для невеликого відступу */
 }
-
 /* NEW: Modal Styles for Player Profile */
 .modal {
     display: none; /* Hidden by default */
@@ -234,7 +254,10 @@ button:hover {
 
 #playerProfileDetails p {
     margin: 8px 0;
+    margin-top: 20px;
     font-size: 1.1em;
+    background-color: #2f3136;
+    padding: 10px;
 }
 
 #playerProfileDetails strong {
@@ -243,11 +266,8 @@ button:hover {
 
 #playerProfileDescription {
     margin-top: 15px;
-    padding: 10px;
-    background-color: #2f3136;
+    line-height: 1.5;
     border-radius: 5px;
-    white-space: pre-wrap; /* Preserve whitespace and wrap text */
-    word-wrap: break-word; /* Break long words */
     font-style: italic;
     color: #b9bbbe;
 }
@@ -330,4 +350,69 @@ button:hover {
 .user-card .rank-display{
     flex-direction: row;
     justify-content: start;
+}
+
+.opgg_link{
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Стилі для кастомного титульного бару */
+#custom-title-bar {
+    -webkit-app-region: drag; /* Дозволяє перетягувати вікно, схопивши за цей елемент */
+    height: 30px; /* Стандартна висота титульного бару */
+    background-color: #2b2b2b; /* Темний фон */
+    color: #f0f0f0; /* Світлий колір тексту */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 10px; /* ✅ Змінено: застосовуємо padding лише по горизонталі */
+    box-sizing: border-box; /* ✅ НОВЕ: Включає padding до загальної ширини */
+    position: fixed; /* Закріплює бар зверху */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Переконайтеся, що він поверх іншого вмісту */
+}
+
+.title-bar-title {
+    -webkit-app-region: no-drag; /* Текст не повинен перетягувати вікно */
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.title-bar-controls {
+    display: flex;
+    -webkit-app-region: no-drag; /* Кнопки не повинні перетягувати вікно */
+}
+
+.title-bar-controls button {
+    background: none;
+    border: none;
+    color: #f0f0f0; /* Колір іконок кнопок */
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    cursor: pointer;
+    outline: none; /* Прибираємо обведення при фокусі */
+    transition: background-color 0.1s; /* Плавний перехід кольору при наведенні */
+}
+
+.title-bar-controls button:hover {
+    background-color: #555; /* Зміна фону при наведенні */
+}
+
+/* Специфічний стиль для кнопки закриття */
+#close-btn:hover {
+    background-color: #e81123; /* Червоний фон при наведенні */
+    color: white; /* Зміна кольору іконки на білий */
+}
+
+/* Відрегулюйте основний контейнер, щоб він був нижче титульного бару */
+.container {
+    padding-top: 30px; /* Додаємо відступ зверху, що дорівнює висоті титульного бару */
+    /* ... Ваші існуючі стилі для .container ... */
 }

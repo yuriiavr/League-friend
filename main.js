@@ -1,39 +1,69 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
+const { app, BrowserWindow, ipcMain } = require("electron");
+const path = require("path");
+
+let mainWindow;
 
 function createWindow() {
-    const mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
-        minWidth: 700, // Додайте мінімальну ширину
-        minHeight: 550, // Додайте мінімальну висоту
-        webPreferences: {
-            nodeIntegration: false,
-            contextIsolation: true // Залишаємо для безпеки
-        }
-    });
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 800,
+    minWidth: 700,
+    minHeight: 550,
+    frame: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, "preload.js"),
+    },
+  });
 
-    mainWindow.loadFile('index.html');
-    // Відкрити DevTools для налагодження (можна закоментувати для релізу)
+  mainWindow.loadFile("index.html");
+
+  if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
+  }
+
+  ipcMain.on("minimize-window", () => {
+    if (mainWindow) {
+      mainWindow.minimize();
+    }
+  });
+
+  ipcMain.on("maximize-restore-window", () => {
+    if (mainWindow) {
+      if (mainWindow.isMaximized()) {
+        mainWindow.restore();
+      } else {
+        mainWindow.maximize();
+      }
+    }
+  });
+
+  ipcMain.on("close-window", () => {
+    if (mainWindow) {
+      mainWindow.close();
+    }
+  });
+
+  mainWindow.on("closed", () => {
+    ipcMain.removeAllListeners("minimize-window");
+    ipcMain.removeAllListeners("maximize-restore-window");
+    ipcMain.removeAllListeners("close-window");
+  });
 }
 
 app.whenReady().then(() => {
-    createWindow();
+  createWindow();
 
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
-        }
-    });
-});
-
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
     }
+  });
 });
 
-// --- IPC Main обробники Riot API більше не потрібні тут ---
-// Вони були перенесені до вашого backend-server/server.js
-// ipcMain.handle('get-summoner-data', ...);
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});

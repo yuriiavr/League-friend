@@ -4,16 +4,24 @@
   "description": "An Electron app to find League of Legends buddies.",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "dist": "electron-builder",  
-    "pack": "electron-builder --dir"
+    "start": "cross-env NODE_ENV=development electron .",
+    "start:prod": "cross-env NODE_ENV=production electron .",
+    "package": "electron-packager . --overwrite --out=dist",
+    "build": "electron-builder build --publish never",
+    "deploy": "electron-builder build --publish always",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yuriiavr/League-friend.git"
   },
-  "keywords": [],
-  "author": "Your Name",  
+  "keywords": [
+    "Electron",
+    "Riot API",
+    "League of Legends",
+    "Buddy Finder"
+  ],
+  "author": "Yurii Avramenko",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/yuriiavr/League-friend/issues"
@@ -21,46 +29,47 @@
   "homepage": "https://github.com/yuriiavr/League-friend#readme",
   "dependencies": {
     "axios": "^1.10.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.0",
-    "cors": "^2.8.5",         
-    "express": "^4.19.2",     
-    "socket.io": "^4.7.5"     
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
   },
   "devDependencies": {
-    "electron": "^37.2.1",     
-    "electron-builder": "^24.13.3" 
+    "cross-env": "^7.0.3",
+    "electron": "^29.1.0",
+    "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.yourcompany.riotbuddyfinder", 
-    "productName": "Riot Buddy Finder", 
-    "copyright": "Copyright © 2025 ${author}", 
+    "appId": "com.yourcompany.riotbuddyfinder",
+    "productName": "Riot Buddy Finder",
+    "copyright": "Copyright © 2025 ${author}",
     "directories": {
-      "output": "dist" 
+      "output": "dist"
     },
     "files": [
-      "**/*", 
-      "!node_modules/**/*.map", 
+      "**/*",
+      "!node_modules/**/*.map",
       "!node_modules/**/*.dev.js",
-      "!backend-server/**", 
-      "backend-server/server.js", 
-      "backend-server/.env", 
-      "backend-server/package.json" 
+      "!backend-server/**",
+      "backend-server/server.js",
+      "backend-server/.env",
+      "backend-server/package.json"
     ],
-    "win": { 
+    "win": {
       "target": "nsis",
-      "icon": "build/icon.ico" 
+      "icon": "build/icon.ico"
     },
     "mac": {
       "target": "dmg",
-      "icon": "build/icon.icns" 
+      "icon": "build/icon.icns"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "build/icon.png" 
+      "icon": "build/icon.png"
     },
     "nsis": {
-      "artifactName": "RiotBuddyFinderSetup-${version}.${ext}", 
-      "deleteAppDataOnUninstall": true 
+      "artifactName": "RiotBuddyFinderSetup-${version}.${ext}",
+      "deleteAppDataOnUninstall": true
     }
   }
 }
