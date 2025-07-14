@@ -7,24 +7,45 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   </head>
   <body>
-
     <div id="custom-title-bar">
-        <div class="title-bar-title">Riot Buddy Finder</div>
-        <div class="title-bar-controls">
-            <button id="minimize-btn" title="Згорнути">
-                <svg viewBox="0 0 10 1" aria-hidden="true" role="presentation" style="width: 10px; height: 10px; fill: #fff;"><rect x="0" y="0" width="10" height="1"></rect></svg>
-            </button>
-            <button id="maximize-restore-btn" title="Розгорнути/Відновити">
-                <svg viewBox="0 0 10 10" aria-hidden="true" role="presentation" style="width: 10px; height: 10px; fill: #fff;"><path d="M0 0L0 10 10 10 10 0 0 0ZM9 1L9 9 1 9 1 1 9 1Z"></path></svg>
-            </button>
-            <button id="close-btn" title="Закрити">
-                <svg viewBox="0 0 10 10" aria-hidden="true" role="presentation" style="width: 10px; height: 10px; fill: #fff;"><polygon points="10 0 10 1 6 5 10 9 10 10 9 10 5 6 1 10 0 10 0 9 4 5 0 1 0 0 1 0 5 4 9 0 10 0"></polygon></svg>
-            </button>
-        </div>
+      <div class="title-bar-title">Riot Buddy Finder</div>
+      <div class="title-bar-controls">
+        <button id="minimize-btn" title="Згорнути">
+          <svg
+            viewBox="0 0 10 1"
+            aria-hidden="true"
+            role="presentation"
+            style="width: 10px; height: 10px; fill: #fff"
+          >
+            <rect x="0" y="0" width="10" height="1"></rect>
+          </svg>
+        </button>
+        <button id="maximize-restore-btn" title="Розгорнути/Відновити">
+          <svg
+            viewBox="0 0 10 10"
+            aria-hidden="true"
+            role="presentation"
+            style="width: 10px; height: 10px; fill: #fff"
+          >
+            <path d="M0 0L0 10 10 10 10 0 0 0ZM9 1L9 9 1 9 1 1 9 1Z"></path>
+          </svg>
+        </button>
+        <button id="close-btn" title="Закрити">
+          <svg
+            viewBox="0 0 10 10"
+            aria-hidden="true"
+            role="presentation"
+            style="width: 10px; height: 10px; fill: #fff"
+          >
+            <polygon
+              points="10 0 10 1 6 5 10 9 10 10 9 10 5 6 1 10 0 10 0 9 4 5 0 1 0 0 1 0 5 4 9 0 10 0"
+            ></polygon>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div class="container">
-
       <div id="loginSection" class="section">
         <div class="form-group">
           <label for="riotId">Ваш Riot ID (наприклад, Summoner#EUW1):</label>
@@ -36,7 +57,9 @@
           />
         </div>
         <div class="form-group">
-          <label for="lolPlatformRegion">Ваш LoL сервер (Регіон платформи):</label>
+          <label for="lolPlatformRegion"
+            >Ваш LoL сервер (Регіон платформи):</label
+          >
           <select id="lolPlatformRegion">
             <option value="euw1">EU West</option>
             <option value="eun1">EU Nordic & East</option>
@@ -48,6 +71,14 @@
         </div>
         <button id="loginBtn">Увійти</button>
         <p id="loginErrorMessage" class="error-message"></p>
+      </div>
+
+      <div class="tab-buttons">
+        <button id="dashboardTabBtn" class="tab-button active">
+          Особистий кабінет
+        </button>
+        <button id="searchTabBtn" class="tab-button">Пошук</button>
+        <button id="newsTabBtn" class="tab-button">Новини</button>
       </div>
 
       <div id="dashboardSection" class="section" style="display: none">
@@ -97,9 +128,16 @@
           </div>
         </div>
 
-        <div style="width: 100%; display: flex; justify-content: space-between; padding-top: 30px;">
-            <button id="logoutBtn" class="secondary-btn">Вийти</button>
-            <button id="startSearchBtn">Розпочати пошук союзника</button>
+        <div
+          style="
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 30px;
+          "
+        >
+          <button id="logoutBtn" class="secondary-btn">Вийти</button>
+          <button id="startSearchBtn">Розпочати пошук союзника</button>
         </div>
       </div>
 
@@ -110,7 +148,6 @@
           <button class="tab-button" data-region="eun1">
             EU Nordic & East
           </button>
-          <button class="tab-button" id="newsTabBtn">Новини</button>
         </div>
 
         <div class="filters-container">
@@ -164,13 +201,12 @@
         <button id="stopSearchBtn" class="secondary-btn">Зупинити пошук</button>
       </div>
 
-      <div id="newsSection" class="section" style="display: none;">
-          <h2>Останні новини</h2>
-          <div id="newsList" class="news-list">
-              <p>Завантаження новин...</p>
-          </div>
+      <div id="newsSection" class="section" style="display: none">
+        <h2>Останні новини</h2>
+        <div id="newsList" class="news-list">
+          <p>Завантаження новин...</p>
+        </div>
       </div>
-
 
       <div id="playerProfileModal" class="modal" style="display: none">
         <div class="modal-content">
@@ -178,9 +214,15 @@
           <h2><strong id="playerProfileNickname"></strong></h2>
           <div id="playerProfileDetails">
             <strong id="playerProfileRank"></strong>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                <p><strong id="playerProfileQueue"></strong></p>
-                <p><strong id="playerProfileLane"></strong></p>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+              "
+            >
+              <p><strong id="playerProfileQueue"></strong></p>
+              <p><strong id="playerProfileLane"></strong></p>
             </div>
             <p><span id="playerProfileDescription"></span></p>
           </div>

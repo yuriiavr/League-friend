@@ -1,6 +1,6 @@
 {
   "name": "riot-buddy-finder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An Electron app to find League of Legends buddies.",
   "main": "main.js",
   "scripts": {

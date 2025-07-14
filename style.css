@@ -1,4 +1,3 @@
-/* General styles */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -8,24 +7,21 @@ body {
 }
 
 ::-webkit-scrollbar {
-    width: 0px;  /* Приховує вертикальний скролбар, встановлюючи його ширину в 0 */
-    height: 0px; /* Приховує горизонтальний скролбар, встановлюючи його висоту в 0 */
-    background: transparent; /* Робить фон скролбару прозорим */
+    width: 0px;
+    height: 0px;
+    background: transparent;
 }
 
-/* Якщо потрібно, щоб трек скролбару також був невидимим */
 ::-webkit-scrollbar-track {
     background: transparent;
 }
 
-/* Якщо потрібно, щоб сам "повзунок" скролбару був невидимим */
 ::-webkit-scrollbar-thumb {
     background: transparent;
 }
 
-/* Для Firefox (якщо також потрібна підтримка, хоча Electron базується на Chromium) */
 html {
-    scrollbar-width: none; /* Приховує скролбар */
+    scrollbar-width: none;
 }
 
 .container {
@@ -67,21 +63,20 @@ label {
 
 input[type="text"],
 select,
-textarea { /* NEW: textarea style */
+textarea {
     width: calc(100% - 20px);
     padding: 10px;
     border: 1px solid #4f545c;
     border-radius: 4px;
     background-color: #40444b;
     color: #ffffff;
-    box-sizing: border-box; /* Include padding in width calculation */
+    box-sizing: border-box;
 }
 
 textarea {
-    resize: vertical; /* Allow vertical resizing */
+    resize: vertical;
     min-height: 80px;
 }
-
 
 .checkbox-group {
     display: flex;
@@ -124,7 +119,7 @@ button:hover {
     text-align: center;
 }
 
-.success-message { /* NEW */
+.success-message {
     color: #55ff55;
     margin-top: 10px;
     text-align: center;
@@ -138,12 +133,11 @@ button:hover {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Tabs for search section */
 .tabs {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
-    flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
+    flex-wrap: wrap;
 }
 
 .tab-button {
@@ -178,8 +172,8 @@ button:hover {
     border-radius: 6px;
     border: 1px solid #4f545c;
     display: flex;
-    flex-direction: column; /* Organize content vertically */
-    cursor: pointer; /* Indicate clickable */
+    flex-direction: column;
+    cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
@@ -194,7 +188,7 @@ button:hover {
 }
 
 .user-card.current-user-card:hover {
-    background-color: #7289da; /* No change on hover for current user */
+    background-color: #7289da;
 }
 
 .user-details {
@@ -204,36 +198,36 @@ button:hover {
 }
 
 .user-description-preview {
-    white-space: nowrap;      /* Забороняє перенесення тексту на новий рядок */
-    overflow: hidden;         /* Приховує будь-який текст, що виходить за межі елемента */
-    text-overflow: ellipsis;  /* Додає три крапки (...) до обрізаного тексту */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 0.9em;
     color: #bbb;
-    margin-top: 5px; /* Для невеликого відступу */
+    margin-top: 5px;
 }
-/* NEW: Modal Styles for Player Profile */
+
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1000; /* Sit on top */
+    display: none;
+    position: fixed;
+    z-index: 1000;
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.7);
     padding-top: 60px;
 }
 
 .modal-content {
     background-color: #36393f;
-    margin: 5% auto; /* 15% from the top and centered */
+    margin: 5% auto;
     padding: 20px;
     border: 1px solid #4f545c;
     border-radius: 8px;
-    width: 80%; /* Could be more responsive */
+    width: 80%;
     max-width: 500px;
-    position: relative; /* For close button positioning */
+    position: relative;
     box-shadow: 0 4px 8px rgba(0,0,0,0.5);
     color: #ffffff;
 }
@@ -276,7 +270,7 @@ button:hover {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 15px; /* Spacing between filter groups */
+    gap: 15px;
     margin: 20px 0;
     padding: 15px;
     background-color: #2f3136;
@@ -285,9 +279,9 @@ button:hover {
 }
 
 .filters-container .form-group {
-    flex: 1; /* Allow items to grow and shrink */
-    min-width: 150px; /* Minimum width for each filter */
-    margin-bottom: 0; /* Override default form-group margin-bottom */
+    flex: 1;
+    min-width: 150px;
+    margin-bottom: 0;
 }
 
 .profile-stats{
@@ -295,21 +289,18 @@ button:hover {
     justify-content: space-between;
 }
 
-/* ... (існуючі стилі) ... */
-
-/* NEW: Styles for Rank Display with Image */
 .rank-display {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 8px; /* Space between image and text */
+    gap: 8px;
 }
 
 .rank-image {
-    width: 80px; /* Adjust size as needed */
+    width: 80px;
     height: 80px;
-    object-fit: contain; /* Ensure image scales correctly */
+    object-fit: contain;
 }
 
 .rank-details {
@@ -320,19 +311,18 @@ button:hover {
 
 .rank-tier {
     font-weight: bold;
-    color: #fff; /* White text for rank tier */
+    color: #fff;
 }
 
 .rank-lp {
     font-size: 0.8em;
-    color: #b0b0b0; /* Lighter color for LP */
+    color: #b0b0b0;
 }
 
-/* Для контейнера рангу в картці користувача, щоб текст "Ранг:" був поруч із зображенням */
 .user-details.rank-info-container {
     display: flex;
     align-items: center;
-    gap: 5px; /* Space between "Ранг:" and the rank display itself */
+    gap: 5px;
 }
 
 .user-card .rank-display .rank-image,
@@ -357,39 +347,38 @@ button:hover {
     text-decoration: none;
 }
 
-/* Стилі для кастомного титульного бару */
 #custom-title-bar {
-    -webkit-app-region: drag; /* Дозволяє перетягувати вікно, схопивши за цей елемент */
-    height: 30px; /* Стандартна висота титульного бару */
-    background-color: #2b2b2b; /* Темний фон */
-    color: #f0f0f0; /* Світлий колір тексту */
+    -webkit-app-region: drag;
+    height: 30px;
+    background-color: #2b2b2b;
+    color: #f0f0f0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0px 10px; /* ✅ Змінено: застосовуємо padding лише по горизонталі */
-    box-sizing: border-box; /* ✅ НОВЕ: Включає padding до загальної ширини */
-    position: fixed; /* Закріплює бар зверху */
+    padding: 0px 10px;
+    box-sizing: border-box;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 1000; /* Переконайтеся, що він поверх іншого вмісту */
+    z-index: 1000;
 }
 
 .title-bar-title {
-    -webkit-app-region: no-drag; /* Текст не повинен перетягувати вікно */
+    -webkit-app-region: no-drag;
     font-weight: bold;
     font-size: 14px;
 }
 
 .title-bar-controls {
     display: flex;
-    -webkit-app-region: no-drag; /* Кнопки не повинні перетягувати вікно */
+    -webkit-app-region: no-drag;
 }
 
 .title-bar-controls button {
     background: none;
     border: none;
-    color: #f0f0f0; /* Колір іконок кнопок */
+    color: #f0f0f0;
     width: 30px;
     height: 30px;
     display: flex;
@@ -397,54 +386,48 @@ button:hover {
     align-items: center;
     padding: 0;
     cursor: pointer;
-    outline: none; /* Прибираємо обведення при фокусі */
-    transition: background-color 0.1s; /* Плавний перехід кольору при наведенні */
+    outline: none;
+    transition: background-color 0.1s;
 }
 
 .title-bar-controls button:hover {
-    background-color: #555; /* Зміна фону при наведенні */
+    background-color: #555;
 }
 
-/* Специфічний стиль для кнопки закриття */
 #close-btn:hover {
-    background-color: #e81123; /* Червоний фон при наведенні */
-    color: white; /* Зміна кольору іконки на білий */
+    background-color: #e81123;
+    color: white;
 }
 
-/* Відрегулюйте основний контейнер, щоб він був нижче титульного бару */
 .container {
-    padding-top: 30px; /* Додаємо відступ зверху, що дорівнює висоті титульного бару */
-    }
+    padding-top: 30px;
+}
 
-/* style.css */
-
-/* Стилі для секції новин */
-.news-list {
-    margin-top: 20px;
-    padding: 10px;
-    border: 1px solid #333;
-    border-radius: 8px;
+#newsSection {
+    padding: 20px;
     background-color: #2a2a2a;
-    max-height: 400px; /* Обмеження висоти для прокрутки */
-    overflow-y: auto; /* Дозволити прокрутку */
+    border-radius: 8px;
+    margin-top: 20px;
+    color: #f0f0f0;
+}
+
+.news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .news-item {
-    background-color: #383838;
-    border-bottom: 1px solid #444;
+    background-color: #3b3b3b;
     padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 5px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.news-item:last-child {
-    border-bottom: none; /* Немає межі для останнього елемента */
-}
-
-.news-item h3 {
-    color: #00bcd4; /* Колір заголовка новини */
+.news-title {
+    color: #7289da;
     margin-top: 0;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .news-item .news-date {
@@ -454,38 +437,24 @@ button:hover {
 }
 
 .news-item p {
-    color: #ccc;
-    line-height: 1.5;
+    line-height: 1.6;
+    color: #e0e0e0;
 }
 
-/* Додаткові стилі для кнопок вкладок, якщо потрібно */
-.tabs {
+.news-item img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border-radius: 6px;
+}
+
+.tab-buttons {
     display: flex;
     justify-content: center;
+    gap: 10px;
     margin-bottom: 20px;
-    background-color: #222;
-    border-radius: 5px;
-    padding: 5px;
-}
-
-.tabs .tab-button {
-    background-color: #444;
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    margin: 0 5px;
-    font-size: 1em;
-    transition: background-color 0.2s ease;
-}
-
-.tabs .tab-button:hover {
-    background-color: #555;
-}
-
-.tabs .tab-button.active {
-    background-color: #00bcd4; /* Активний колір для вкладки */
-    color: #fff;
-    font-weight: bold;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 8px;
 }
