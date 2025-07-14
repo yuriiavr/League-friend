@@ -51,7 +51,7 @@
           <div class="form-group">
             <label for="queueTypeSelect">Оберіть тип черги:</label>
             <select id="queueTypeSelect">
-              <option value="Будь-яка">Будь-яка</option>
+              <option value="Будь-яка черга">Будь-яка черга</option>
               <option value="Solo/Duo">Solo/Duo</option>
               <option value="Flex">Flex</option>
               <option value="Normal">Normal</option>
@@ -60,9 +60,9 @@
           </div>
 
           <div class="form-group">
-            <label for="laneSelect">Оберіть бажану позицію:</label>
+            <label for="laneSelect">Оберіть бажану лінію:</label>
             <select id="laneSelect">
-              <option value="Будь-яка">Будь-яка</option>
+              <option value="Будь-яка лінія">Будь-яка лінія</option>
               <option value="Top">Top</option>
               <option value="Jungle">Jungle</option>
               <option value="Mid">Mid</option>
@@ -83,8 +83,10 @@
           </div>
         </div>
 
-        <button id="startSearchBtn">Розпочати пошук союзника</button>
-        <button id="logoutBtn" class="secondary-btn">Вийти</button>
+        <div style="width: 100%; display: flex; justify-content: space-between; padding-top: 30px;">
+            <button id="logoutBtn" class="secondary-btn">Вийти</button>
+            <button id="startSearchBtn">Розпочати пошук союзника</button>
+        </div>
       </div>
 
       <div id="searchSection" class="section" style="display: none">
@@ -100,7 +102,7 @@
           <div class="form-group">
             <label for="filterRank">Фільтр за рангом:</label>
             <select id="filterRank">
-              <option value="Будь-який">Будь-який</option>
+              <option value="Будь-який ранг">Будь-який ранг</option>
               <option value="IRON">IRON</option>
               <option value="BRONZE">BRONZE</option>
               <option value="SILVER">SILVER</option>
@@ -115,7 +117,7 @@
           <div class="form-group">
             <label for="filterQueueType">Фільтр за чергою:</label>
             <select id="filterQueueType">
-              <option value="Будь-яка">Будь-яка</option>
+              <option value="Будь-яка черга">Будь-яка черга</option>
               <option value="Solo/Duo">Solo/Duo</option>
               <option value="Flex">Flex</option>
               <option value="Normal">Normal</option>
@@ -123,9 +125,9 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="filterLane">Фільтр за позицією:</label>
+            <label for="filterLane">Фільтр за лінією:</label>
             <select id="filterLane">
-              <option value="Будь-яка">Будь-яка</option>
+              <option value="Будь-яка лінія">Будь-яка лінія</option>
               <option value="Top">Top</option>
               <option value="Jungle">Jungle</option>
               <option value="Mid">Mid</option>
@@ -584,7 +586,7 @@
 
             // Фільтр за рангом
             if (
-              selectedFilterRank !== "Any" &&
+              selectedFilterRank !== "Будь-який ранг" &&
               !buddy.rank.startsWith(selectedFilterRank)
             ) {
               return false;
@@ -592,7 +594,7 @@
 
             // Фільтр за типом черги
             if (
-              selectedFilterQueueType !== "Any" &&
+              selectedFilterQueueType !== "Будь-яка черга" &&
               buddy.queueType !== selectedFilterQueueType
             ) {
               return false;
@@ -600,7 +602,7 @@
 
             // Фільтр за позицією
             if (
-              selectedFilterLane !== "Any" &&
+              selectedFilterLane !== "Будь-яка лінія" &&
               buddy.lane !== selectedFilterLane
             ) {
               return false;
