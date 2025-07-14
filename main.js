@@ -1,5 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
+require('dotenv').config();
+
+const BACKEND_URL = process.env.BACKEND_BASE_URL;
 
 let mainWindow;
 
@@ -18,6 +21,10 @@ function createWindow() {
   });
 
   mainWindow.loadFile("index.html");
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.send('backend-url', BACKEND_URL);
+  });
 
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();

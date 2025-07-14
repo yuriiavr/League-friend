@@ -53,34 +53,37 @@ let currentActiveRegion = "euw1";
 let currentUserData = null;
 let isLoggedIn = false;
 
-const BACKEND_BASE_URL = "https://lol-prog-back.onrender.com";
+let BACKEND_BASE_URL = '';
 
-const socket = io(BACKEND_BASE_URL);
+window.electronAPI.getBackendUrl((url) => {
+  BACKEND_BASE_URL = url;
+  const socket = io(BACKEND_BASE_URL);
 
-socket.on("connect", () => {
+  socket.on("connect", () => {
     if (searchSection.style.display === "block" || searchSection.style.display === "important") {
-        updateSearchQueueUI();
+      updateSearchQueueUI();
     }
-});
+  });
 
-socket.on("initial_queue_state", (queue) => {
+  socket.on("initial_queue_state", (queue) => {
     if (searchSection.style.display === "block" || searchSection.style.display === "important") {
-        updateSearchQueueUI();
+      updateSearchQueueUI();
     }
-});
+  });
 
-socket.on("queue_updated", (updatedQueue) => {
+  socket.on("queue_updated", (updatedQueue) => {
     if (searchSection.style.display === "block" || searchSection.style.display === "important") {
-        updateSearchQueueUI();
+      updateSearchQueueUI();
     }
-});
+  });
 
-socket.on("disconnect", () => {
-    
-});
+  socket.on("disconnect", () => {
+  });
 
-socket.on("connect_error", (error) => {
-    
+  socket.on("connect_error", (error) => {
+  });
+
+  initializeApp();
 });
 
 function showSection(sectionId) {
