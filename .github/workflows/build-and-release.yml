@@ -3,7 +3,7 @@ name: Build and Release Windows App
 on:
   push:
     tags:
-      - 'v1.0.2'
+      - 'v*'
 
 jobs:
   build-and-release:
