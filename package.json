@@ -10,7 +10,7 @@
     "build": "electron-builder build --publish never",
     "deploy": "electron-builder build --publish always",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "publish-prod": "cross-env BACKEND_BASE_URL=https://lol-prog-back.onrender.com electron-builder --win --x64 --publish always"
+    "publish-prod": "electron-builder --win --x64 --publish always"
   },
   "repository": {
     "type": "git",

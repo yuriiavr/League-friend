@@ -3,7 +3,7 @@ const { autoUpdater } = require('electron-updater');
 const path = require("path");
 require('dotenv').config();
 
-const BACKEND_URL = process.env.BACKEND_BASE_URL;
+const BACKEND_URL = 'https://lol-prog-back.onrender.com';
 
 autoUpdater.logger = require('electron-log');
 autoUpdater.logger.transports.file.level = 'info';
