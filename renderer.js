@@ -561,7 +561,7 @@ function getRankDisplayHtml(rankString) {
         }
     }
 
-    let imageTier = tier.toLowerCase();
+    let imageTier = tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase();
     if (imageTier.includes('/')) {
         imageTier = imageTier.split('/')[0];
     }
