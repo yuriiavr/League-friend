@@ -1,7 +1,7 @@
 {
   "name": "riot-buddy-finder",
   "version": "1.0.1",
-  "description": "An Electron app to find League of Legends buddies.",
+  "description": "An app to find League of Legends buddies.",
   "main": "main.js",
   "scripts": {
     "start": "cross-env NODE_ENV=development electron .",
@@ -9,7 +9,8 @@
     "package": "electron-packager . --overwrite --out=dist",
     "build": "electron-builder build --publish never",
     "deploy": "electron-builder build --publish always",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "publish-prod": "electron-builder --win --x64 --publish always"
   },
   "repository": {
     "type": "git",
@@ -21,7 +22,7 @@
     "League of Legends",
     "Buddy Finder"
   ],
-  "author": "Yurii Avramenko",
+  "author": "Yurii Avramets",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/yuriiavr/League-friend/issues"
@@ -31,6 +32,7 @@
     "axios": "^1.10.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
+    "electron-updater": "^6.6.2",
     "express": "^4.19.2",
     "socket.io": "^4.7.5"
   },
@@ -46,6 +48,11 @@
     "directories": {
       "output": "dist"
     },
+    "publish": {
+      "provider": "github",                  
+      "owner": "yuriiavr",        
+      "repo": "League-friend"               
+    },
     "files": [
       "**/*",
       "!node_modules/**/*.map",
@@ -53,16 +60,8 @@
       "!backend-server/**"
     ],
     "win": {
-      "target": "nsis",
+      "target": ["nsis", "zip"],
       "icon": "build/icon.ico"
-    },
-    "mac": {
-      "target": "dmg",
-      "icon": "build/icon.icns"
-    },
-    "linux": {
-      "target": "AppImage",
-      "icon": "build/icon.png"
     },
     "nsis": {
       "artifactName": "RiotBuddyFinderSetup-${version}.${ext}",

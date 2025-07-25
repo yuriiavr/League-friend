@@ -1,8 +1,41 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { autoUpdater } = require('electron-updater');
 const path = require("path");
 require('dotenv').config();
 
 const BACKEND_URL = process.env.BACKEND_BASE_URL;
+
+autoUpdater.logger = require('electron-log');
+autoUpdater.logger.transports.file.level = 'info';
+
+autoUpdater.on('update-available', () => {
+    dialog.showMessageBox({
+        type: 'info',
+        title: 'Доступне оновлення',
+        message: 'Доступна нова версія додатку. Завантаження розпочнеться у фоновому режимі.',
+        buttons: ['ОК']
+    });
+});
+
+autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+    const dialogOpts = {
+        type: 'info',
+        buttons: ['Перезапустити', 'Пізніше'],
+        title: 'Оновлення завантажено',
+        message: process.platform === 'win32' ? releaseNotes : releaseName,
+        detail: 'Нова версія додатку завантажена. Перезапустіть додаток, щоб застосувати оновлення.'
+    };
+
+    dialog.showMessageBox(dialogOpts).then((returnValue) => {
+        if (returnValue.response === 0) autoUpdater.quitAndInstall();
+    });
+});
+
+autoUpdater.on('error', (message) => {
+    console.error('Сталася помилка при оновленні.');
+    console.error(message);
+});
+
 
 let mainWindow;
 
@@ -57,6 +90,8 @@ function createWindow() {
     ipcMain.removeAllListeners("maximize-restore-window");
     ipcMain.removeAllListeners("close-window");
   });
+
+  autoUpdater.checkForUpdatesAndNotify();
 }
 
 app.whenReady().then(() => {
