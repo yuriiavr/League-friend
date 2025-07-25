@@ -34,7 +34,8 @@
     "dotenv": "^17.2.0",
     "electron-updater": "^6.6.2",
     "express": "^4.19.2",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "electron-log": "^4.4.8"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
@@ -49,9 +50,9 @@
       "output": "dist"
     },
     "publish": {
-      "provider": "github",                  
-      "owner": "yuriiavr",        
-      "repo": "League-friend"               
+      "provider": "github",
+      "owner": "yuriiavr",
+      "repo": "League-friend"
     },
     "files": [
       "**/*",
