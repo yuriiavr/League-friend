@@ -566,7 +566,7 @@ function getRankDisplayHtml(rankString) {
         imageTier = imageTier.split('/')[0];
     }
 
-    const imageUrl = `/assets/ranks/${imageTier}.webp`;
+    const imageUrl = `./assets/ranks/${imageTier}.webp`;
 
     let rankText = tier;
     if (division) {
