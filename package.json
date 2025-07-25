@@ -1,6 +1,6 @@
 {
   "name": "riot-buddy-finder",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "An app to find League of Legends buddies.",
   "main": "main.js",
   "scripts": {
