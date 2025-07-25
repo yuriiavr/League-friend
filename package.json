@@ -1,6 +1,6 @@
 {
   "name": "riot-buddy-finder",
-  "version": "1.0.2",
+  "version": "1.0.1",
   "description": "An app to find League of Legends buddies.",
   "main": "main.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "build": "electron-builder build --publish never",
     "deploy": "electron-builder build --publish always",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "publish-prod": "electron-builder --win --x64 --publish always"
+    "publish-prod": "cross-env BACKEND_BASE_URL=https://lol-prog-back.onrender.com electron-builder --win --x64 --publish always"
   },
   "repository": {
     "type": "git",
@@ -32,10 +32,10 @@
     "axios": "^1.10.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
+    "electron-log": "^4.4.8",
     "electron-updater": "^6.6.2",
     "express": "^4.19.2",
-    "socket.io": "^4.7.5",
-    "electron-log": "^4.4.8"
+    "socket.io": "^4.7.5"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
@@ -61,7 +61,10 @@
       "!backend-server/**"
     ],
     "win": {
-      "target": ["nsis", "zip"],
+      "target": [
+        "nsis",
+        "zip"
+      ],
       "icon": "build/icon.ico"
     },
     "nsis": {
