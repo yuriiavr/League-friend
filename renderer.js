@@ -565,10 +565,8 @@ function getRankDisplayHtml(rankString) {
     if (imageTier.includes('/')) {
         imageTier = imageTier.split('/')[0];
     }
-    if (imageTier === 'grandmaster') imageTier = 'master';
-    if (imageTier === 'challenger') imageTier = 'master';
 
-    const imageUrl = `./assets/ranks/${imageTier}.webp`;
+    const imageUrl = `/assets/ranks/${imageTier}.webp`;
 
     let rankText = tier;
     if (division) {
